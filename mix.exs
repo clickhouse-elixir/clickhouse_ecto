@@ -7,7 +7,11 @@ defmodule ClickhouseEcto.Mixfile do
       version: "0.1.0",
       elixir: "~> 1.5",
       start_permanent: Mix.env == :prod,
-      deps: deps()
+      deps: deps(),
+      name: "ClickhouseEcto",
+      description: description(),
+      maintainers: maintainers(),
+      licenses: ["Apache 2.0"]
     ]
   end
 
@@ -22,7 +26,15 @@ defmodule ClickhouseEcto.Mixfile do
   defp deps do
     [
       {:ecto, "~> 2.1"},
-      {:clickhousex, path: "./../clickhousex"}
+      {:clickhousex, "~> 0.1.0"}
     ]
+  end
+
+  defp description do
+    "ClickHouse driver for Elixir (uses ODBC)."
+  end
+
+  defp maintainers do
+    ["Roman Chudov", "Konstantin Grabar", "Evgeniy Shurmin", "Alexey Lukyanov"]
   end
 end
