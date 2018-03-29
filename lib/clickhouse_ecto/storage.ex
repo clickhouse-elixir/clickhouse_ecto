@@ -30,7 +30,7 @@ defmodule ClickhouseEcto.Storage do
     case run_query(command, opts) do
       {:ok, _} ->
         :ok
-      {:error, %{code: :base_table_or_view_not_found}} ->
+      {:error, %{code: :database_does_not_exists}} ->
         {:error, :already_down}
       {:error, error} ->
         {:error, Exception.message(error)}
