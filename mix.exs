@@ -25,13 +25,14 @@ defmodule ClickhouseEcto.Mixfile do
   defp deps do
     [
       {:ecto, "~> 2.1"},
-      {:clickhousex, "~> 0.1.0"}
+      {:clickhousex, "~> 0.1.0"},
+      {:ex_doc, ">= 0.0.0", only: :dev}
     ]
   end
 
   defp package do
     [
-      name: "ClickhouseEcto",
+      name: "clickhouse_ecto",
       maintainers: maintainers(),
       licenses: ["Apache 2.0"],
       files: ["lib", "test", "config", "mix.exs", "README*", "LICENSE*"],
@@ -40,7 +41,7 @@ defmodule ClickhouseEcto.Mixfile do
   end
 
   defp description do
-    "ClickHouse driver for Elixir (uses ODB)."
+    "ClickHouse driver for Elixir (uses ODBC)."
   end
 
   defp maintainers do
