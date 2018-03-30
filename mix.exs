@@ -3,7 +3,7 @@ defmodule ClickhouseEcto.Mixfile do
 
   def project do
     [
-      app: :clickhouse_ecto,
+      app: :clickhouse_ecto_odbc,
       version: "0.2.0",
       elixir: "~> 1.5",
       start_permanent: Mix.env == :prod,
