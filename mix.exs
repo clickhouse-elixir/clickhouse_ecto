@@ -8,10 +8,9 @@ defmodule ClickhouseEcto.Mixfile do
       elixir: "~> 1.5",
       start_permanent: Mix.env == :prod,
       deps: deps(),
-      name: "ClickhouseEcto",
       description: description(),
-      maintainers: maintainers(),
-      licenses: ["Apache 2.0"]
+      package: package(),
+      source_url: "https://github.com/appodeal/clickhouse_ecto"
     ]
   end
 
@@ -30,8 +29,18 @@ defmodule ClickhouseEcto.Mixfile do
     ]
   end
 
+  defp package do
+    [
+      name: "ClickhouseEcto",
+      maintainers: maintainers(),
+      licenses: ["Apache 2.0"],
+      files: ["lib", "test", "config", "mix.exs", "README*", "LICENSE*"],
+      links: %{"GitHub" => "https://github.com/appodeal/clickhouse_ecto"}
+    ]
+  end
+
   defp description do
-    "ClickHouse driver for Elixir (uses ODBC)."
+    "ClickHouse driver for Elixir (uses ODB)."
   end
 
   defp maintainers do
