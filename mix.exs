@@ -40,7 +40,7 @@ defmodule ClickhouseEcto.Mixfile do
   end
 
   defp description do
-    "ClickHouse driver for Elixir (uses ODB)."
+    "ClickHouse driver for Elixir (uses ODBС)."
   end
 
   defp maintainers do
