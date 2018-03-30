@@ -1,0 +1,34 @@
+<div class="detail" id="<%=enc_h link_id(module_node.id, module_node.type) %>">
+  <%= if is_enc? link_id(module_node.id, module_node.type) do %>
+    <span id="<%=h link_id(module_node.id, module_node.type) %>"></span>
+  <% end %>
+  <%= for default <- get_defaults(module_node) do %>
+    <span id="<%=enc_h link_id(default, module_node.type) %>"></span>
+  <% end %>
+  <div class="detail-header">
+    <a href="#<%=enc_h link_id(module_node) %>" class="detail-link" title="Link to this <%= pretty_type(module_node) %>">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this <%= pretty_type(module_node) %></span>
+    </a>
+    <span class="signature"><%=h module_node.signature %></span>
+    <%= if module_node.source_url do %>
+      <a href="<%= module_node.source_url %>" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    <% end %>
+    <%= for annotation <- module_node.annotations do %>
+      <span class="note">(<%= annotation %>)</span>
+    <% end %>
+    <%= if specs = get_specs(module_node) do %>
+      <div class="specs">
+        <%= for spec <- specs do %>
+          <pre><%= spec %></pre>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+  <section class="docstring">
+    <%= module_node.doc |> to_html(module_node) |> link_detail_headings(enc_h(link_id(module_node))) %>
+  </section>
+</div>

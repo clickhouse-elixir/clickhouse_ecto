@@ -1,0 +1,82 @@
+    <%= head_template(config, %{title: module.title, type: module.type}) %>
+    <%= sidebar_template(config, nodes_map) %>
+
+      <h1>
+        <small class="visible-xs"><%= config.project %> v<%= config.version %></small>
+        <%= module_title(module) %>
+        <%= if module.source_url do %>
+          <a href="<%= module.source_url %>" title="View Source" class="view-source" rel="help">
+            <span class="icon-code" aria-hidden="true"></span>
+            <span class="sr-only">View Source</span>
+          </a>
+        <% end %>
+      </h1>
+
+      <%= if module.doc do %>
+        <section id="moduledoc">
+          <%= module.doc |> to_html(module) |> link_moduledoc_headings() %>
+        </section>
+      <% end %>
+
+      <%= if Enum.any?(summary_map, fn {_, v} -> v != [] end) do %>
+        <section id="summary" class="details-list">
+          <h1 class="section-heading">
+            <a class="hover-link" href="#summary">
+              <span class="icon-link" aria-hidden="true"></span>
+              <span class="sr-only">Link to this section</span>
+            </a>
+            Summary
+          </h1>
+          <%= summary_template "types", summary_map.types %>
+          <%= summary_template "functions", summary_map.functions %>
+          <%= summary_template "callbacks", summary_map.callbacks %>
+        </section>
+      <% end %>
+
+      <%= if summary_map.types != [] do %>
+        <section id="types" class="details-list">
+          <h1 class="section-heading">
+            <a class="hover-link" href="#types">
+              <span class="icon-link" aria-hidden="true"></span>
+              <span class="sr-only">Link to this section</span>
+            </a>
+            Types
+          </h1>
+          <div class="types-list">
+            <%= for type_node <- summary_map.types do
+              detail_template(type_node, module)
+            end %>
+          </div>
+        </section>
+      <% end %>
+
+      <%= if summary_map.functions != [] do %>
+        <section id="functions" class="details-list">
+          <h1 class="section-heading">
+            <a class="hover-link" href="#functions">
+              <span class="icon-link" aria-hidden="true"></span>
+              <span class="sr-only">Link to this section</span>
+            </a>
+            Functions
+          </h1>
+          <%= for function_node <- summary_map.functions do
+            detail_template(function_node, module)
+          end %>
+        </section>
+      <% end %>
+
+      <%= if summary_map.callbacks != [] do %>
+        <section id="callbacks" class="details-list">
+          <h1 class="section-heading">
+            <a class="hover-link" href="#callbacks">
+              <span class="icon-link" aria-hidden="true"></span>
+              <span class="sr-only">Link to this section</span>
+            </a>
+            Callbacks
+          </h1>
+          <%= for callback_node <- summary_map.callbacks do
+            detail_template(callback_node, module)
+          end %>
+        </section>
+      <% end %>
+    <%= footer_template(config) %>

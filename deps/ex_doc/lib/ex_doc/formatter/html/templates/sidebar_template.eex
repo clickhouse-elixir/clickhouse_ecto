@@ -1,0 +1,55 @@
+<div class="main">
+<button class="sidebar-button sidebar-toggle">
+  <span class="icon-menu" aria-hidden="true"></span>
+  <span class="sr-only">Toggle Sidebar</span>
+</button>
+<button class="sidebar-button night-mode-toggle">
+  <span class="icon-theme" aria-hidden="true"></span>
+  <span class="sr-only">Toggle Theme</span>
+</button>
+<section class="sidebar">
+
+  <% url = config.homepage_url || "#{config.main}.html" %>
+  <a href="<%= url %>" class="sidebar-projectLink">
+    <div class="sidebar-projectDetails">
+      <h1 class="sidebar-projectName">
+        <%= config.project %>
+      </h1>
+      <h2 class="sidebar-projectVersion">
+        v<%= config.version %>
+      </h2>
+    </div>
+    <%= if config.logo do %>
+      <img src="<%= logo_path(config) %>" alt="<%= config.project %>" class="sidebar-projectImage">
+    <% end %>
+  </a>
+
+  <form class="sidebar-search" action="search.html">
+    <button type="submit" class="search-button">
+      <span class="icon-search" aria-hidden="true"></span>
+    </button>
+    <input name="q" type="text" id="search-list" class="search-input" placeholder="Search" aria-label="Search" autocomplete="off" />
+  </form>
+
+  <ul class="sidebar-listNav">
+    <li><a id="extras-list" href="#full-list"><%= config.extra_section || "Pages" %></a></li>
+
+    <%= if nodes_map.modules != [] do %>
+      <li><a id="modules-list" href="#full-list">Modules</a></li>
+    <% end %>
+
+    <%= if nodes_map.exceptions != [] do %>
+      <li><a id="exceptions-list" href="#full-list">Exceptions</a></li>
+    <% end %>
+
+    <%= if nodes_map.tasks != [] do %>
+      <li><a id="tasks-list" href="#full-list">Mix Tasks</a></li>
+    <% end %>
+  </ul>
+  <div class="gradient"></div>
+  <ul id="full-list" class="sidebar-fullList"></ul>
+</section>
+
+<section class="content">
+  <div class="content-outer">
+    <div id="content" class="content-inner">

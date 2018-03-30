@@ -1,0 +1,14 @@
+<%= head_template(config, %{title: "Cover"}) %>
+    <div class="title-container">
+      <h1><%= config.project %></h1>
+      <h2>v<%= config.version %></h2>
+      <%= if logo = config.logo do %>
+        <div><img src="assets/logo<%= Path.extname(logo) %>" alt="Logo"/></div>
+      <% end %>
+    </div>
+    <%# Extra content needed by the current markdown processor (e.g. custom Javascipt) %>
+    <%= ExDoc.Markdown.get_markdown_processor().before_closing_body_tag(:epub) %>
+    <%# Extra content specified by the user (e.g. custom Javascipt) %>
+    <%= config.before_closing_body_tag.(:epub) %>
+  </body>
+</html>

@@ -1,0 +1,13 @@
+{application,clickhousex,
+             [{description,"clickhousex"},
+              {modules,['Elixir.Clickhousex','Elixir.Clickhousex.Error',
+                        'Elixir.Clickhousex.ODBC',
+                        'Elixir.Clickhousex.Protocol',
+                        'Elixir.Clickhousex.Query',
+                        'Elixir.Clickhousex.Result',
+                        'Elixir.DBConnection.Query.Clickhousex.Query',
+                        'Elixir.String.Chars.Clickhousex.Query']},
+              {registered,[]},
+              {vsn,"0.1.0"},
+              {applications,[kernel,stdlib,elixir,logger,db_connection,
+                             odbc]}]}.
