@@ -31,7 +31,7 @@ defmodule ClickhouseEcto.Connection do
         #{:ok, result}
         {:ok, %{query | statement: prepared_query}, process_rows(result, options)}
       {:error, %Clickhousex.Error{}} = error ->
-        if is_erlang_odbc_no_data_found_bug?(error, prepared_query) do
+        if is_no_data_found_bug?(error, prepared_query) do
           {:ok, %Query{name: "", statement: prepared_query}, %{num_rows: 0, rows: []}}
         else
           error
@@ -61,7 +61,7 @@ defmodule ClickhouseEcto.Connection do
         #{:ok, result}
         {:ok, process_rows(result, options)}
       {:error, %Clickhousex.Error{}} = error ->
-        if is_erlang_odbc_no_data_found_bug?(error, query.statement) do
+        if is_no_data_found_bug?(error, query.statement) do
           {:ok, %{num_rows: 0, rows: []}}
         else
           error
@@ -101,7 +101,7 @@ defmodule ClickhouseEcto.Connection do
     |> String.replace(~r/(\?([0-9]+))(?=(?:[^\\"']|[\\"'][^\\"']*[\\"'])*$)/, "?")
   end
 
-  defp is_erlang_odbc_no_data_found_bug?({:error, error}, statement) do
+  defp is_no_data_found_bug?({:error, error}, statement) do
       is_dml = statement
       |> IO.iodata_to_binary()
       |> (fn string -> String.starts_with?(string, "INSERT") || String.starts_with?(string, "DELETE") || String.starts_with?(string, "UPDATE") end).()

@@ -49,7 +49,7 @@ defmodule ClickhouseEcto.Storage do
     {:ok, pid} = Task.Supervisor.start_link
 
     task = Task.Supervisor.async_nolink(pid, fn ->
-      :odbc.start
+      HTTPoison.start
       {:ok, conn} = DBConnection.start_link(Clickhousex.Protocol, opts)
       value = ClickhouseEcto.Connection.execute(conn, sql, [], opts)
       GenServer.stop(conn)
