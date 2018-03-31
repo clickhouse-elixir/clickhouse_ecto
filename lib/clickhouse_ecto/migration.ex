@@ -25,7 +25,7 @@ defmodule ClickhouseEcto.Migration do
              quote_table(table.prefix, table.name), ?\s, ?(,
              column_definitions(table, filtered_columns), ?),
              options_expr(table.options),
-             if_do(engine != nil, " ENGINE = #{engine}  ", " ENGINE = TinyLog  ")]
+             if_do(engine != nil, " ENGINE = #{engine}  ", " ENGINE = TinyLog ")]
 
     [query]
   end
@@ -155,9 +155,9 @@ defmodule ClickhouseEcto.Migration do
   defp default_expr(:error, _, _, _),
     do: []
   defp default_expr({:ok, nil}, _type),
-    do: " DEFAULT NULL"
+    do: error!(nil, "NULL is not supported")
   defp default_expr({:ok, []}, _type),
-    do: error!(nil, "arrays not supported")
+    do: error!(nil, "arrays are not supported")
   defp default_expr({:ok, literal}, _type) when is_binary(literal),
     do: [" DEFAULT '", escape_string(literal), ?']
   defp default_expr({:ok, literal}, _type) when is_number(literal),
