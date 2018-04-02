@@ -9,8 +9,7 @@ defmodule ClickhouseEcto.Connection do
   @type cached :: map
 
   @doc """
-  Receives options and returns `DBConnection` supervisor child
-  specification.
+  Receives options and returns `DBConnection` supervisor child specification.
   """
   @spec child_spec(options :: Keyword.t) :: {module, Keyword.t}
   def child_spec(opts) do
@@ -28,7 +27,6 @@ defmodule ClickhouseEcto.Connection do
 
     case DBConnection.prepare_execute(conn, %Query{name: name, statement: statement}, ordered_params, options) do
       {:ok, query, result} ->
-        #{:ok, result}
         {:ok, %{query | statement: prepared_query}, process_rows(result, options)}
       {:error, %Clickhousex.Error{}} = error ->
         if is_no_data_found_bug?(error, prepared_query) do
@@ -58,7 +56,6 @@ defmodule ClickhouseEcto.Connection do
 
     case DBConnection.prepare_execute(conn, query, ordered_params, options) do
       {:ok, _query, result} ->
-        #{:ok, result}
         {:ok, process_rows(result, options)}
       {:error, %Clickhousex.Error{}} = error ->
         if is_no_data_found_bug?(error, query.statement) do
@@ -110,29 +107,16 @@ defmodule ClickhouseEcto.Connection do
   end
 
   defp process_rows(result, options) do
-#    decoder = fn x -> x end
     decoder = options[:decode_mapper] || fn x -> x end
     Map.update!(result, :rows, fn row ->
       unless is_nil(row), do: Enum.map(row, decoder)
     end)
   end
 
+  def to_constraints(error), do: []
 
   @doc """
-  Receives the exception returned by `query/4`.
-  The constraints are in the keyword list and must return the
-  constraint type, like `:unique`, and the constraint name as
-  a string, for example:
-      [unique: "posts_title_index"]
-  Must return an empty list if the error does not come
-  from any constraint.
-  """
-  @spec to_constraints(exception :: Exception.t) :: Keyword.t
-  def to_constraints(%Clickhousex.Error{} = error), do: error.constraint_violations
-
-  @doc """
-  Returns a stream that prepares and executes the given query with
-  `DBConnection`.
+  Returns a stream that prepares and executes the given query with `DBConnection`.
   """
   @spec stream(connection :: DBConnection.conn, prepared_query :: prepared, params :: [term], options :: Keyword.t) ::
   Enum.t

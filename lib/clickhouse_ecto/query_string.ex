@@ -7,9 +7,20 @@ defmodule ClickhouseEcto.QueryString do
   alias ClickhouseEcto.Helpers
 
   binary_ops =
-    [==: " = ", !=: " != ", <=: " <= ", >=: " >= ", <: " < ", >: " > ",
-     and: " AND ", or: " OR ", ilike: " ILIKE ", like: " LIKE ", in: " IN ",
-     is_nil: " WHERE "]
+    [
+      ==: " = ",
+      !=: " != ",
+      <=: " <= ",
+      >=: " >= ",
+      <: " < ",
+      >: " > ",
+      and: " AND ",
+      or: " OR ",
+      ilike: " ILIKE ",
+      like: " LIKE ",
+      in: " IN ",
+      is_nil: " WHERE "
+    ]
 
   @binary_ops Keyword.keys(binary_ops)
 
@@ -23,8 +34,7 @@ defmodule ClickhouseEcto.QueryString do
     ["SELECT", select_distinct, ?\s | select_fields(fields, sources, query)]
   end
 
-  def select_fields([], _sources, _query),
-    do: "'TRUE'"
+  def select_fields([], _sources, _query), do: "'TRUE'"
   def select_fields(fields, sources, query) do
     Helpers.intersperse_map(fields, ", ", fn
       {key, value} ->
@@ -39,9 +49,8 @@ defmodule ClickhouseEcto.QueryString do
   def distinct(%QueryExpr{expr: true}, _, _), do: {" DISTINCT", []}
   def distinct(%QueryExpr{expr: false}, _, _), do: {[], []}
   def distinct(%QueryExpr{expr: exprs}, sources, query) do
-    {[" DISTINCT ON (",
-      Helpers.intersperse_map(exprs, ", ", fn {_, expr} -> expr(expr, sources, query) end), ?)],
-     exprs}
+    Helpers.error!(query,
+      "DISTINCT ON is not supported! Use `distinct: true`, for ex. `from rec in MyModel, distinct: true, select: rec.my_field`")
   end
 
   def from(%{from: from} = query, sources) do
@@ -49,71 +58,25 @@ defmodule ClickhouseEcto.QueryString do
     [" FROM ", from, " AS " | name]
   end
 
-  def update_fields(%Query{updates: updates} = query, sources) do
-    for(%{expr: expr} <- updates,
-        {op, kw} <- expr,
-        {key, value} <- kw,
-        do: update_op(op, key, value, sources, query)) |> Enum.intersperse(", ")
-  end
-
-  def update_op(:set, key, value, sources, query) do
-    [Helpers.quote_name(key), " = " | expr(value, sources, query)]
-  end
-
-  def update_op(:inc, key, value, sources, query) do
-    [Helpers.quote_name(key), " = ", Helpers.quote_qualified_name(key, sources, 0), " + " |
-     expr(value, sources, query)]
-  end
-
-  def update_op(:push, key, value, sources, query) do
-    [Helpers.quote_name(key), " = array_append(", Helpers.quote_qualified_name(key, sources, 0),
-     ", ", expr(value, sources, query), ?)]
-  end
-
-  def update_op(:pull, key, value, sources, query) do
-    [Helpers.quote_name(key), " = array_remove(", Helpers.quote_qualified_name(key, sources, 0),
-     ", ", expr(value, sources, query), ?)]
-  end
-
-  def update_op(command, _key, _value, _sources, query) do
-    Helpers.error!(query, "Unknown update operation #{inspect command} for ClickHouse")
-  end
-
-  def using_join(%Query{joins: []}, _kind, _prefix, _sources), do: {[], []}
-  def using_join(%Query{joins: joins} = query, kind, prefix, sources) do
-    froms =
-      Helpers.intersperse_map(joins, ", ", fn
-        %JoinExpr{qual: :inner, ix: ix, source: source} ->
-          {join, name} = Helpers.get_source(query, sources, ix, source)
-          [join, " AS " | name]
-        %JoinExpr{qual: qual} ->
-          Helpers.error!(query, "ClickHouse supports only inner joins on #{kind}, got: `#{qual}`")
-      end)
-
-    wheres =
-      for %JoinExpr{on: %QueryExpr{expr: value} = expr} <- joins,
-          value != true,
-          do: expr |> Map.put(:__struct__, BooleanExpr) |> Map.put(:op, :and)
-
-    {[?\s, prefix, ?\s | froms], wheres}
+  def update_fields(query, sources) do
+    Helpers.error!(query, "UPDATE is not supported")
   end
 
   def join(%Query{joins: []}, _sources), do: []
   def join(%Query{joins: joins} = query, sources) do
     [?\s | Helpers.intersperse_map(joins, ?\s, fn
-      %JoinExpr{on: %QueryExpr{expr: expr}, qual: qual, ix: ix, source: source} ->
-        {join, name} = Helpers.get_source(query, sources, ix, source)
-        [join_qual(qual), join, " AS ", name, " ON " | paren_expr(expr, sources, query)]
+      %JoinExpr{qual: qual, ix: ix, source: source, on: %QueryExpr{expr: on_expr}} ->
+        {join, _name} = Helpers.get_source(query, sources, ix, source)
+        ["ANY", join_qual(qual), join, " USING ", on_join_expr(on_expr)]
     end)]
   end
 
-  def join_qual(:inner), do: "INNER JOIN "
-  def join_qual(:inner_lateral), do: "INNER JOIN LATERAL "
-  def join_qual(:left),  do: "LEFT OUTER JOIN "
-  def join_qual(:left_lateral),  do: "LEFT OUTER JOIN LATERAL "
-  def join_qual(:right), do: "RIGHT OUTER JOIN "
-  def join_qual(:full),  do: "FULL OUTER JOIN "
-  def join_qual(:cross), do: "CROSS JOIN "
+  def on_join_expr({:==, _, [{{_, _, [_, column]}, _, _}, _]}) do
+    column |> Atom.to_string()
+  end
+
+  def join_qual(:inner), do: " INNER JOIN "
+  def join_qual(:left),  do: " LEFT OUTER JOIN "
 
   def where(%Query{wheres: wheres} = query, sources) do
     boolean(" WHERE ", wheres, sources, query)
@@ -250,16 +213,6 @@ defmodule ClickhouseEcto.QueryString do
     end)
   end
 
-  def expr({:datetime_add, _, [datetime, count, interval]}, sources, query) do
-    ["CAST(DATEADD(", interval, ",", expr(count, sources, query),
-      ",", expr(datetime, sources, query) | ") AS DATETIME2)"]
-  end
-
-  def expr({:date_add, _, [date, count, interval]}, sources, query) do
-    ["CAST(DATEADD(", interval, ",", expr(count, sources, query),
-      ",", expr(date, sources, query) | ") AS DATE)"]
-  end
-
   def expr({fun, _, args}, sources, query) when is_atom(fun) and is_list(args) do
     {modifier, args} =
       case args do
@@ -321,15 +274,7 @@ defmodule ClickhouseEcto.QueryString do
     expr(expr, sources, query)
   end
 
-  def returning(%Query{select: nil}, _sources),
-    do: []
-  def returning(%Query{select: %{fields: fields}} = query, sources),
-    do: [" RETURNING " | select_fields(fields, sources, query)]
-
-  def returning([]),
-    do: []
-  def returning(returning),
-    do: [" RETURNING " | Helpers.intersperse_map(returning, ", ", &Helpers.quote_name/1)]
+  def returning(returning), do: raise "RETURNING is not supported!"
 
   def create_names(%{prefix: prefix, sources: sources}) do
     create_names(prefix, sources, 0, tuple_size(sources)) |> List.to_tuple()
