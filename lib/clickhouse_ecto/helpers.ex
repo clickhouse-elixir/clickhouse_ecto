@@ -84,6 +84,7 @@ defmodule ClickhouseEcto.Helpers do
   def ecto_to_db(:integer),        do: "Int32"
   def ecto_to_db(:bigint),         do: "Int64"
   def ecto_to_db(:float),          do: "Float32"
+  def ecto_to_db(:decimal),        do: "Float64"
   def ecto_to_db(:boolean),        do: "UInt8"
   def ecto_to_db(:date),           do: "Date"
   def ecto_to_db(:utc_datetime),   do: "DateTime"
