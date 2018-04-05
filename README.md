@@ -1,6 +1,6 @@
 # ClickhouseEcto
 
-Ecto driver for ClickHouse database using HTTP interface.
+Ecto adapter for ClickHouse database using [clickhousex driver](http://github.com/appodeal/clickhousex).
 
 ## Installation
 
