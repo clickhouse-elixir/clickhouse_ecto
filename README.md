@@ -38,7 +38,7 @@ config :example_app, ExampleApp.ClickHouseRepo,
 Example of Ecto model:
 
 ```Elixir
-defmodule ExampleApp.User do
+defmodule ExampleApp.Click do
   use ExampleApp.Web, :model
 
   schema "clicks" do
