@@ -33,22 +33,36 @@ config :example_app, ExampleApp.ClickHouseRepo,
        pool_size: 30
 ```
 
+Do not forget to add :clickhouse_ecto and :clickhousex to your
+applications:
+
+```elixir
++    [
++      mod: {ExampleApp, []},
++      applications: [
++        :clickhousex, :clickhouse_ecto
++      ]
++    ]
+```
+
 ## Examples
 
 Example of Ecto model:
 
-```Elixir
+```elixir
 defmodule ExampleApp.Click do
   use ExampleApp.Web, :model
+
+  @primary_key {:date, :date, []}
+  @timestamps_opts updated_at: false
 
   schema "clicks" do
     field :site_id, :integer
     field :source, :string
     field :ip, :string
-    field :points, :decimal
+    field :score, :decimal
     field :width, :integer
     field :height, :integer
-    field :date, :date
 
     timestamps()
   end
@@ -64,9 +78,18 @@ defmodule ExampleApp.Click do
 end
 ```
 
+Due to ClickHouse does not support data update and uniq rows
+identifiers, do not forget to set primary key field and turn off
+updated_at timestamp updating:
+
+```elixir
+  @primary_key {:date, :date, []}
+  @timestamps_opts updated_at: false
+```
+
 Example of data migrations:
 
-```Elixir
+```elixir
 defmodule ExampleApp.Repo.Migrations.CreateClick do
   use Ecto.Migration
 
@@ -94,6 +117,19 @@ defmodule ExampleApp.Repo.Migrations.AddUserAgentToClicks do
     end
   end
 end
+```
+
+Queries examples:
+
+```elixir
+ExampleApp.Repo.insert %ExampleApp.Click{site_id: 1, date: Ecto.Date.utc, score: 0.0}
+[debug] QUERY OK db=7.8ms
+INSERT INTO "clicks" ("date","score","site_id","inserted_at") VALUES (?,?,?,?) [{2018, 4, 5}, 0.0, 1, {{2018, 4, 5}, {8, 18, 30, 727360}}]
+{:ok,
+ %ExampleApp.Click{__meta__: #Ecto.Schema.Metadata<:loaded, "clicks">,
+  date: #Ecto.Date<2018-04-05>, height: nil,
+  inserted_at: ~N[2018-04-05 08:18:30.727360], ip: nil, score: 0.0, site_id: 1,
+  source: nil, width: nil}}
 ```
 
 Documentation can be generated with [ExDoc](https://github.com/elixir-lang/ex_doc)

@@ -1,14 +1,16 @@
-defmodule ExampleApp.User do
+defmodule ExampleApp.Click do
   use ExampleApp.Web, :model
+
+  @primary_key {:date, :date, []}
+  @timestamps_opts updated_at: false
 
   schema "clicks" do
     field :site_id, :integer
     field :source, :string
     field :ip, :string
-    field :points, :decimal
+    field :score, :decimal
     field :width, :integer
     field :height, :integer
-    field :date, :date
 
     timestamps()
   end
