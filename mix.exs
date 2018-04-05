@@ -4,7 +4,7 @@ defmodule ClickhouseEcto.Mixfile do
   def project do
     [
       app: :clickhouse_ecto,
-      version: "0.2.0",
+      version: "0.2.1",
       elixir: "~> 1.5",
       start_permanent: Mix.env == :prod,
       deps: deps(),
@@ -41,7 +41,7 @@ defmodule ClickhouseEcto.Mixfile do
   end
 
   defp description do
-    "ClickHouse driver for Elixir (uses HTTP)."
+    "Ecto adapter for ClickHouse database (uses clickhousex driver)"
   end
 
   defp maintainers do
