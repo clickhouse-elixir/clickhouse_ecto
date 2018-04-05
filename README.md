@@ -37,12 +37,14 @@ Do not forget to add :clickhouse_ecto and :clickhousex to your
 applications:
 
 ```elixir
-+    [
-+      mod: {ExampleApp, []},
-+      applications: [
-+        :clickhousex, :clickhouse_ecto
-+      ]
-+    ]
+  def application do
+    [
+      mod: {ExampleApp, []},
+      applications: [
+        :clickhousex, :clickhouse_ecto
+      ]
+    ]
+  end
 ```
 
 ## Examples
