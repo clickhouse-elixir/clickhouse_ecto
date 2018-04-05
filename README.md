@@ -122,14 +122,20 @@ end
 Queries examples:
 
 ```elixir
-ExampleApp.Repo.insert %ExampleApp.Click{site_id: 1, date: Ecto.Date.utc, score: 0.0}
+iex(1)> ExampleApp.Repo.insert %ExampleApp.Click{site_id: 1, date: Ecto.Date.utc, score: 1.1}
 [debug] QUERY OK db=7.8ms
-INSERT INTO "clicks" ("date","score","site_id","inserted_at") VALUES (?,?,?,?) [{2018, 4, 5}, 0.0, 1, {{2018, 4, 5}, {8, 18, 30, 727360}}]
+INSERT INTO "clicks" ("date","score","site_id","inserted_at") VALUES (?,?,?,?) [{2018, 4, 5}, 1.1, 1, {{2018, 4, 5}, {8, 18, 30, 727360}}]
 {:ok,
  %ExampleApp.Click{__meta__: #Ecto.Schema.Metadata<:loaded, "clicks">,
   date: #Ecto.Date<2018-04-05>, height: nil,
-  inserted_at: ~N[2018-04-05 08:18:30.727360], ip: nil, score: 0.0, site_id: 1,
+  inserted_at: ~N[2018-04-05 08:18:30.727360], ip: nil, score: 1.1, site_id: 1,
   source: nil, width: nil}}
+iex(2)> ExampleApp.Repo.all ExampleApp.Click
+[debug] QUERY OK source="clicks" db=11.8ms
+SELECT c0."date", c0."site_id", c0."source", c0."ip", c0."score", c0."width", c0."height", c0."inserted_at" FROM "clicks" AS c0 []
+[%ExampleApp.Click{__meta__: #Ecto.Schema.Metadata<:loaded, "clicks">,
+  date: ~D[2018-04-05], height: 0, inserted_at: ~N[2018-04-05 09:15:42.000000],
+  ip: "", score: #Decimal<1.1>, site_id: 1, source: "", width: 0}]
 ```
 
 Documentation can be generated with [ExDoc](https://github.com/elixir-lang/ex_doc)

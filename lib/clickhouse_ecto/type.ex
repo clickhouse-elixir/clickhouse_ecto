@@ -43,8 +43,8 @@ defmodule ClickhouseEcto.Type do
   end
 
   def decode(value, type)
-  when type in @decimal_types and is_binary(value) do
-    Decimal.parse(value)
+  when type in @decimal_types do
+    {:ok, Decimal.new(value)}
   end
 
   def decode(value, :uuid) do
