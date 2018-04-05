@@ -10,7 +10,7 @@ by adding `clickhouse_ecto` to your list of dependencies in `mix.exs`:
 ```elixir
 def deps do
   [
-    {:clickhouse_ecto, "~> 0.1.0"}
+    {:clickhouse_ecto, "~> 0.2.0"}
   ]
 end
 ```
@@ -19,12 +19,12 @@ end
 Add configuration for your repo like this:
 
 ```elixir
-config :my_app, MyApp.ClickHouseRepo,
+config :example_app, ExampleApp.ClickHouseRepo,
        adapter: ClickhouseEcto,
        loggers: [Ecto.LogEntry],
        hostname: "localhost",
        port: 8123,
-       database: "default",
+       database: "example_app",
        username: "user",
        password: "654321",
        timeout: 60_000,
