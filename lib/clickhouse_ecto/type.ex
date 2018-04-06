@@ -36,9 +36,10 @@ defmodule ClickhouseEcto.Type do
 
   def decode(value, type)
   when type in [:float] do
-    cond do
-      Decimal.decimal?(value) -> {:ok, Decimal.to_float(value)}
-      true                    -> {:ok, value}
+    tmp = if is_binary(value), do: value, else: to_string(value)
+    case Float.parse(tmp) do
+      {float, _}  -> {:ok, float}
+      :error    -> {:error, "Not an float value"}
     end
   end
 
