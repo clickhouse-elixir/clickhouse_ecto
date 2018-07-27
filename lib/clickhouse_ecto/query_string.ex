@@ -199,7 +199,7 @@ defmodule ClickhouseEcto.QueryString do
   end
 
   def expr(%Ecto.SubQuery{query: query, params: params}, _sources, _query) do
-    query.select.fields |> put_in(params) |> Connection.all()
+    Connection.all(query)
   end
 
   def expr({:fragment, _, [kw]}, _sources, query) when is_list(kw) or tuple_size(kw) == 3 do
