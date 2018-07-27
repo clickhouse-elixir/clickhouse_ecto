@@ -5,12 +5,12 @@
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="generator" content="ExDoc v0.18.3">
-    <title>ClickhouseEcto.QueryString – clickhouse_ecto v0.1.0</title>
+    <title>ClickhouseEcto.QueryString – clickhouse_ecto v0.2.4</title>
     <link rel="stylesheet" href="dist/app-480ffdc169.css" />
     
       <link rel="canonical" href="https://hexdocs.pm/clickhouse_ecto/ClickhouseEcto.QueryString.html" />
     
-    <script src="dist/sidebar_items-385ba2217d.js"></script>
+    <script src="dist/sidebar_items-e6fa2aab9b.js"></script>
     
     
     
@@ -37,7 +37,7 @@
         clickhouse_ecto
       </h1>
       <h2 class="sidebar-projectVersion">
-        v0.1.0
+        v0.2.4
       </h2>
     </div>
     
@@ -71,7 +71,7 @@
 
 
       <h1>
-        <small class="visible-xs">clickhouse_ecto v0.1.0</small>
+        <small class="visible-xs">clickhouse_ecto v0.2.4</small>
         ClickhouseEcto.QueryString
         
           <a href="https://github.com/appodeal/clickhouse_ecto/blob/master/lib/clickhouse_ecto/query_string.ex#L1" title="View Source" class="view-source" rel="help">
@@ -179,6 +179,12 @@
 </div>
 <div class="summary-row">
   <div class="summary-signature">
+    <a href="#on_join_expr/1">on_join_expr(arg)</a>
+  </div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
     <a href="#op_to_binary/3">op_to_binary(expr, sources, query)</a>
   </div>
   
@@ -215,12 +221,6 @@
 </div>
 <div class="summary-row">
   <div class="summary-signature">
-    <a href="#returning/2">returning(query, sources)</a>
-  </div>
-  
-</div>
-<div class="summary-row">
-  <div class="summary-signature">
     <a href="#select/3">select(query, select_distinct, sources)</a>
   </div>
   
@@ -234,18 +234,6 @@
 <div class="summary-row">
   <div class="summary-signature">
     <a href="#update_fields/2">update_fields(query, sources)</a>
-  </div>
-  
-</div>
-<div class="summary-row">
-  <div class="summary-signature">
-    <a href="#update_op/5">update_op(command, key, value, sources, query)</a>
-  </div>
-  
-</div>
-<div class="summary-row">
-  <div class="summary-signature">
-    <a href="#using_join/4">using_join(query, kind, prefix, sources)</a>
   </div>
   
 </div>
@@ -285,7 +273,7 @@
     </a>
     <span class="signature">boolean(name, list, sources, query)</span>
     
-      <a href="https://github.com/appodeal/clickhouse_ecto/blob/master/lib/clickhouse_ecto/query_string.ex#L159" class="view-source" rel="help" title="View Source">
+      <a href="https://github.com/appodeal/clickhouse_ecto/blob/master/lib/clickhouse_ecto/query_string.ex#L122" class="view-source" rel="help" title="View Source">
        <span class="icon-code" aria-hidden="true"></span>
        <span class="sr-only">View Source</span>
      </a>
@@ -307,7 +295,7 @@
     </a>
     <span class="signature">create_names(map)</span>
     
-      <a href="https://github.com/appodeal/clickhouse_ecto/blob/master/lib/clickhouse_ecto/query_string.ex#L334" class="view-source" rel="help" title="View Source">
+      <a href="https://github.com/appodeal/clickhouse_ecto/blob/master/lib/clickhouse_ecto/query_string.ex#L279" class="view-source" rel="help" title="View Source">
        <span class="icon-code" aria-hidden="true"></span>
        <span class="sr-only">View Source</span>
      </a>
@@ -329,7 +317,7 @@
     </a>
     <span class="signature">create_names(prefix, sources, pos, limit)</span>
     
-      <a href="https://github.com/appodeal/clickhouse_ecto/blob/master/lib/clickhouse_ecto/query_string.ex#L352" class="view-source" rel="help" title="View Source">
+      <a href="https://github.com/appodeal/clickhouse_ecto/blob/master/lib/clickhouse_ecto/query_string.ex#L297" class="view-source" rel="help" title="View Source">
        <span class="icon-code" aria-hidden="true"></span>
        <span class="sr-only">View Source</span>
      </a>
@@ -351,7 +339,7 @@
     </a>
     <span class="signature">distinct(arg1, sources, query)</span>
     
-      <a href="https://github.com/appodeal/clickhouse_ecto/blob/master/lib/clickhouse_ecto/query_string.ex#L41" class="view-source" rel="help" title="View Source">
+      <a href="https://github.com/appodeal/clickhouse_ecto/blob/master/lib/clickhouse_ecto/query_string.ex#L51" class="view-source" rel="help" title="View Source">
        <span class="icon-code" aria-hidden="true"></span>
        <span class="sr-only">View Source</span>
      </a>
@@ -373,7 +361,7 @@
     </a>
     <span class="signature">expr(list, sources, query)</span>
     
-      <a href="https://github.com/appodeal/clickhouse_ecto/blob/master/lib/clickhouse_ecto/query_string.ex#L308" class="view-source" rel="help" title="View Source">
+      <a href="https://github.com/appodeal/clickhouse_ecto/blob/master/lib/clickhouse_ecto/query_string.ex#L261" class="view-source" rel="help" title="View Source">
        <span class="icon-code" aria-hidden="true"></span>
        <span class="sr-only">View Source</span>
      </a>
@@ -395,7 +383,7 @@
     </a>
     <span class="signature">from(query, sources)</span>
     
-      <a href="https://github.com/appodeal/clickhouse_ecto/blob/master/lib/clickhouse_ecto/query_string.ex#L47" class="view-source" rel="help" title="View Source">
+      <a href="https://github.com/appodeal/clickhouse_ecto/blob/master/lib/clickhouse_ecto/query_string.ex#L56" class="view-source" rel="help" title="View Source">
        <span class="icon-code" aria-hidden="true"></span>
        <span class="sr-only">View Source</span>
      </a>
@@ -417,7 +405,7 @@
     </a>
     <span class="signature">group_by(query, sources)</span>
     
-      <a href="https://github.com/appodeal/clickhouse_ecto/blob/master/lib/clickhouse_ecto/query_string.ex#L127" class="view-source" rel="help" title="View Source">
+      <a href="https://github.com/appodeal/clickhouse_ecto/blob/master/lib/clickhouse_ecto/query_string.ex#L90" class="view-source" rel="help" title="View Source">
        <span class="icon-code" aria-hidden="true"></span>
        <span class="sr-only">View Source</span>
      </a>
@@ -439,7 +427,7 @@
     </a>
     <span class="signature">handle_call(fun, arg2)</span>
     
-      <a href="https://github.com/appodeal/clickhouse_ecto/blob/master/lib/clickhouse_ecto/query_string.ex#L20" class="view-source" rel="help" title="View Source">
+      <a href="https://github.com/appodeal/clickhouse_ecto/blob/master/lib/clickhouse_ecto/query_string.ex#L31" class="view-source" rel="help" title="View Source">
        <span class="icon-code" aria-hidden="true"></span>
        <span class="sr-only">View Source</span>
      </a>
@@ -461,7 +449,7 @@
     </a>
     <span class="signature">having(query, sources)</span>
     
-      <a href="https://github.com/appodeal/clickhouse_ecto/blob/master/lib/clickhouse_ecto/query_string.ex#L122" class="view-source" rel="help" title="View Source">
+      <a href="https://github.com/appodeal/clickhouse_ecto/blob/master/lib/clickhouse_ecto/query_string.ex#L85" class="view-source" rel="help" title="View Source">
        <span class="icon-code" aria-hidden="true"></span>
        <span class="sr-only">View Source</span>
      </a>
@@ -483,7 +471,7 @@
     </a>
     <span class="signature">interval(count, interval, sources, query)</span>
     
-      <a href="https://github.com/appodeal/clickhouse_ecto/blob/master/lib/clickhouse_ecto/query_string.ex#L312" class="view-source" rel="help" title="View Source">
+      <a href="https://github.com/appodeal/clickhouse_ecto/blob/master/lib/clickhouse_ecto/query_string.ex#L265" class="view-source" rel="help" title="View Source">
        <span class="icon-code" aria-hidden="true"></span>
        <span class="sr-only">View Source</span>
      </a>
@@ -505,7 +493,7 @@
     </a>
     <span class="signature">join(query, sources)</span>
     
-      <a href="https://github.com/appodeal/clickhouse_ecto/blob/master/lib/clickhouse_ecto/query_string.ex#L102" class="view-source" rel="help" title="View Source">
+      <a href="https://github.com/appodeal/clickhouse_ecto/blob/master/lib/clickhouse_ecto/query_string.ex#L66" class="view-source" rel="help" title="View Source">
        <span class="icon-code" aria-hidden="true"></span>
        <span class="sr-only">View Source</span>
      </a>
@@ -527,7 +515,7 @@
     </a>
     <span class="signature">join_qual(atom)</span>
     
-      <a href="https://github.com/appodeal/clickhouse_ecto/blob/master/lib/clickhouse_ecto/query_string.ex#L116" class="view-source" rel="help" title="View Source">
+      <a href="https://github.com/appodeal/clickhouse_ecto/blob/master/lib/clickhouse_ecto/query_string.ex#L79" class="view-source" rel="help" title="View Source">
        <span class="icon-code" aria-hidden="true"></span>
        <span class="sr-only">View Source</span>
      </a>
@@ -549,7 +537,29 @@
     </a>
     <span class="signature">limit(query, sources)</span>
     
-      <a href="https://github.com/appodeal/clickhouse_ecto/blob/master/lib/clickhouse_ecto/query_string.ex#L154" class="view-source" rel="help" title="View Source">
+      <a href="https://github.com/appodeal/clickhouse_ecto/blob/master/lib/clickhouse_ecto/query_string.ex#L117" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+  </div>
+  <section class="docstring">
+    
+  </section>
+</div>
+<div class="detail" id="on_join_expr/1">
+  
+  
+  <div class="detail-header">
+    <a href="#on_join_expr/1" class="detail-link" title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">on_join_expr(arg)</span>
+    
+      <a href="https://github.com/appodeal/clickhouse_ecto/blob/master/lib/clickhouse_ecto/query_string.ex#L74" class="view-source" rel="help" title="View Source">
        <span class="icon-code" aria-hidden="true"></span>
        <span class="sr-only">View Source</span>
      </a>
@@ -571,7 +581,7 @@
     </a>
     <span class="signature">op_to_binary(expr, sources, query)</span>
     
-      <a href="https://github.com/appodeal/clickhouse_ecto/blob/master/lib/clickhouse_ecto/query_string.ex#L320" class="view-source" rel="help" title="View Source">
+      <a href="https://github.com/appodeal/clickhouse_ecto/blob/master/lib/clickhouse_ecto/query_string.ex#L273" class="view-source" rel="help" title="View Source">
        <span class="icon-code" aria-hidden="true"></span>
        <span class="sr-only">View Source</span>
      </a>
@@ -593,7 +603,7 @@
     </a>
     <span class="signature">operator_to_boolean(atom)</span>
     
-      <a href="https://github.com/appodeal/clickhouse_ecto/blob/master/lib/clickhouse_ecto/query_string.ex#L170" class="view-source" rel="help" title="View Source">
+      <a href="https://github.com/appodeal/clickhouse_ecto/blob/master/lib/clickhouse_ecto/query_string.ex#L133" class="view-source" rel="help" title="View Source">
        <span class="icon-code" aria-hidden="true"></span>
        <span class="sr-only">View Source</span>
      </a>
@@ -615,7 +625,7 @@
     </a>
     <span class="signature">order_by(query, distinct, sources)</span>
     
-      <a href="https://github.com/appodeal/clickhouse_ecto/blob/master/lib/clickhouse_ecto/query_string.ex#L136" class="view-source" rel="help" title="View Source">
+      <a href="https://github.com/appodeal/clickhouse_ecto/blob/master/lib/clickhouse_ecto/query_string.ex#L99" class="view-source" rel="help" title="View Source">
        <span class="icon-code" aria-hidden="true"></span>
        <span class="sr-only">View Source</span>
      </a>
@@ -637,7 +647,7 @@
     </a>
     <span class="signature">order_by_expr(arg, sources, query)</span>
     
-      <a href="https://github.com/appodeal/clickhouse_ecto/blob/master/lib/clickhouse_ecto/query_string.ex#L142" class="view-source" rel="help" title="View Source">
+      <a href="https://github.com/appodeal/clickhouse_ecto/blob/master/lib/clickhouse_ecto/query_string.ex#L105" class="view-source" rel="help" title="View Source">
        <span class="icon-code" aria-hidden="true"></span>
        <span class="sr-only">View Source</span>
      </a>
@@ -659,7 +669,7 @@
     </a>
     <span class="signature">paren_expr(expr, sources, query)</span>
     
-      <a href="https://github.com/appodeal/clickhouse_ecto/blob/master/lib/clickhouse_ecto/query_string.ex#L174" class="view-source" rel="help" title="View Source">
+      <a href="https://github.com/appodeal/clickhouse_ecto/blob/master/lib/clickhouse_ecto/query_string.ex#L137" class="view-source" rel="help" title="View Source">
        <span class="icon-code" aria-hidden="true"></span>
        <span class="sr-only">View Source</span>
      </a>
@@ -681,29 +691,7 @@
     </a>
     <span class="signature">returning(returning)</span>
     
-      <a href="https://github.com/appodeal/clickhouse_ecto/blob/master/lib/clickhouse_ecto/query_string.ex#L331" class="view-source" rel="help" title="View Source">
-       <span class="icon-code" aria-hidden="true"></span>
-       <span class="sr-only">View Source</span>
-     </a>
-    
-    
-    
-  </div>
-  <section class="docstring">
-    
-  </section>
-</div>
-<div class="detail" id="returning/2">
-  
-  
-  <div class="detail-header">
-    <a href="#returning/2" class="detail-link" title="Link to this function">
-      <span class="icon-link" aria-hidden="true"></span>
-      <span class="sr-only">Link to this function</span>
-    </a>
-    <span class="signature">returning(query, sources)</span>
-    
-      <a href="https://github.com/appodeal/clickhouse_ecto/blob/master/lib/clickhouse_ecto/query_string.ex#L326" class="view-source" rel="help" title="View Source">
+      <a href="https://github.com/appodeal/clickhouse_ecto/blob/master/lib/clickhouse_ecto/query_string.ex#L277" class="view-source" rel="help" title="View Source">
        <span class="icon-code" aria-hidden="true"></span>
        <span class="sr-only">View Source</span>
      </a>
@@ -725,7 +713,7 @@
     </a>
     <span class="signature">select(query, select_distinct, sources)</span>
     
-      <a href="https://github.com/appodeal/clickhouse_ecto/blob/master/lib/clickhouse_ecto/query_string.ex#L22" class="view-source" rel="help" title="View Source">
+      <a href="https://github.com/appodeal/clickhouse_ecto/blob/master/lib/clickhouse_ecto/query_string.ex#L33" class="view-source" rel="help" title="View Source">
        <span class="icon-code" aria-hidden="true"></span>
        <span class="sr-only">View Source</span>
      </a>
@@ -747,7 +735,7 @@
     </a>
     <span class="signature">select_fields(fields, sources, query)</span>
     
-      <a href="https://github.com/appodeal/clickhouse_ecto/blob/master/lib/clickhouse_ecto/query_string.ex#L28" class="view-source" rel="help" title="View Source">
+      <a href="https://github.com/appodeal/clickhouse_ecto/blob/master/lib/clickhouse_ecto/query_string.ex#L38" class="view-source" rel="help" title="View Source">
        <span class="icon-code" aria-hidden="true"></span>
        <span class="sr-only">View Source</span>
      </a>
@@ -769,51 +757,7 @@
     </a>
     <span class="signature">update_fields(query, sources)</span>
     
-      <a href="https://github.com/appodeal/clickhouse_ecto/blob/master/lib/clickhouse_ecto/query_string.ex#L52" class="view-source" rel="help" title="View Source">
-       <span class="icon-code" aria-hidden="true"></span>
-       <span class="sr-only">View Source</span>
-     </a>
-    
-    
-    
-  </div>
-  <section class="docstring">
-    
-  </section>
-</div>
-<div class="detail" id="update_op/5">
-  
-  
-  <div class="detail-header">
-    <a href="#update_op/5" class="detail-link" title="Link to this function">
-      <span class="icon-link" aria-hidden="true"></span>
-      <span class="sr-only">Link to this function</span>
-    </a>
-    <span class="signature">update_op(command, key, value, sources, query)</span>
-    
-      <a href="https://github.com/appodeal/clickhouse_ecto/blob/master/lib/clickhouse_ecto/query_string.ex#L78" class="view-source" rel="help" title="View Source">
-       <span class="icon-code" aria-hidden="true"></span>
-       <span class="sr-only">View Source</span>
-     </a>
-    
-    
-    
-  </div>
-  <section class="docstring">
-    
-  </section>
-</div>
-<div class="detail" id="using_join/4">
-  
-  
-  <div class="detail-header">
-    <a href="#using_join/4" class="detail-link" title="Link to this function">
-      <span class="icon-link" aria-hidden="true"></span>
-      <span class="sr-only">Link to this function</span>
-    </a>
-    <span class="signature">using_join(query, kind, prefix, sources)</span>
-    
-      <a href="https://github.com/appodeal/clickhouse_ecto/blob/master/lib/clickhouse_ecto/query_string.ex#L83" class="view-source" rel="help" title="View Source">
+      <a href="https://github.com/appodeal/clickhouse_ecto/blob/master/lib/clickhouse_ecto/query_string.ex#L61" class="view-source" rel="help" title="View Source">
        <span class="icon-code" aria-hidden="true"></span>
        <span class="sr-only">View Source</span>
      </a>
@@ -835,7 +779,7 @@
     </a>
     <span class="signature">where(query, sources)</span>
     
-      <a href="https://github.com/appodeal/clickhouse_ecto/blob/master/lib/clickhouse_ecto/query_string.ex#L118" class="view-source" rel="help" title="View Source">
+      <a href="https://github.com/appodeal/clickhouse_ecto/blob/master/lib/clickhouse_ecto/query_string.ex#L81" class="view-source" rel="help" title="View Source">
        <span class="icon-code" aria-hidden="true"></span>
        <span class="sr-only">View Source</span>
      </a>
