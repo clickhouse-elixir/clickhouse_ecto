@@ -10,7 +10,7 @@ by adding `clickhouse_ecto` to your list of dependencies in `mix.exs`:
 ```elixir
 def deps do
   [
-    {:clickhouse_ecto, "~> 0.2.3"}
+    {:clickhouse_ecto, "~> 0.2.4"}
   ]
 end
 ```
