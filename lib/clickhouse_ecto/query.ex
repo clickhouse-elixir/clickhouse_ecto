@@ -27,7 +27,7 @@ defmodule ClickhouseEcto.Query do
     #res = [select, from, join, where, group_by, having, order_by, lock]
     #res = [select, from, join, where, group_by, having, order_by, offset | lock]
     res = [select, from, join, where, group_by, having, order_by, limit]
-    
+
     IO.iodata_to_binary(res)
   end
 
@@ -74,7 +74,7 @@ defmodule ClickhouseEcto.Query do
       nil, counter ->
         {"DEFAULT", counter}
       _, counter ->
-        {[?? | Integer.to_string(counter)], counter + 1}
+        {[??], counter + 1}
     end)
   end
 

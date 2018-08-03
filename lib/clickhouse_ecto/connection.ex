@@ -22,10 +22,8 @@ defmodule ClickhouseEcto.Connection do
   @spec prepare_execute(connection :: DBConnection.t, name :: String.t, prepared, params :: [term], options :: Keyword.t) ::
   {:ok, query :: map, term} | {:error, Exception.t}
   def prepare_execute(conn, name, prepared_query, params, options) do
-    statement = sanitise_query(prepared_query)
-    ordered_params = order_params(prepared_query, params)
-
-    case DBConnection.prepare_execute(conn, %Query{name: name, statement: statement}, ordered_params, options) do
+    query = %Query{name: name, statement: prepared_query}
+    case DBConnection.prepare_execute(conn, query, params, options) do
       {:ok, query, result} ->
         {:ok, %{query | statement: prepared_query}, process_rows(result, options)}
       {:error, %Clickhousex.Error{}} = error ->
@@ -46,15 +44,7 @@ defmodule ClickhouseEcto.Connection do
   @spec execute(connection :: DBConnection.t, prepared_query :: cached, params :: [term], options :: Keyword.t) ::
             {:ok, term} | {:error | :reset, Exception.t}
   def execute(conn, %Query{} = query, params, options) do
-    ordered_params =
-      query.statement
-      |> IO.iodata_to_binary
-      |> order_params(params)
-
-    sanitised_query = sanitise_query(query.statement)
-    query = Map.put(query, :statement, sanitised_query)
-
-    case DBConnection.prepare_execute(conn, query, ordered_params, options) do
+    case DBConnection.prepare_execute(conn, query, params, options) do
       {:ok, _query, result} ->
         {:ok, process_rows(result, options)}
       {:error, %Clickhousex.Error{}} = error ->
@@ -68,34 +58,6 @@ defmodule ClickhouseEcto.Connection do
   end
   def execute(conn, statement, params, options) do
     execute(conn, %Query{name: "", statement: statement}, params, options)
-  end
-
-  defp order_params(query, params) do
-    sanitised = Regex.replace(~r/(([^\\]|^))["'].*?[^\\]['"]/, IO.iodata_to_binary(query), "\\g{1}")
-
-    ordering =
-      Regex.scan(~r/\?([0-9]+)/, sanitised)
-      |> Enum.map( fn [_, x] -> String.to_integer(x) end)
-
-    if length(ordering) != length(params) do
-      raise "\nError: number of params received (#{length(params)}) does not match expected (#{length(ordering)})"
-    end
-
-    ordered_params =
-      ordering
-      |> Enum.reduce([], fn ix, acc -> [Enum.at(params, ix - 1) | acc] end)
-      |> Enum.reverse
-
-    case ordered_params do
-      []  -> params
-      _   -> ordered_params
-    end
-  end
-
-  defp sanitise_query(query) do
-    query
-    |> IO.iodata_to_binary
-    |> String.replace(~r/(\?([0-9]+))(?=(?:[^\\"']|[\\"'][^\\"']*[\\"'])*$)/, "?")
   end
 
   defp is_no_data_found_bug?({:error, error}, statement) do
