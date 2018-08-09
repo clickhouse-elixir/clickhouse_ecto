@@ -26,7 +26,7 @@ defmodule ClickhouseEcto.Mixfile do
     [
       {:ecto, "~> 2.1"},
       {:clickhousex, "~> 0.2.2"},
-      {:ex_doc, ">= 0.0.0", only: :dev}
+      {:ex_doc, "~> 0.18", only: :dev}
     ]
   end
 
