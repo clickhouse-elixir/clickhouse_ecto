@@ -119,32 +119,33 @@ defmodule ClickhouseEcto.Protocol do
     res = sql_query |> Client.send(base_address, timeout, username, password, database, method) |> handle_errors()
 
     case res do
-      {:error, %Error{code: :connection_exception} = reason} ->
+      {:error, %ClickhouseEcto.Error{code: :connection_exception} = reason} ->
         {:disconnect, reason, state}
+
       {:error, reason} ->
         {:error, reason, state}
-      {:selected, columns, rows} ->
-        {
-          :ok,
-          %ClickhouseEcto.Result{
-            command: :selected,
-            columns: columns,
-            rows: rows,
-            num_rows: Enum.count(rows)
-          },
-          state
-        }
+
+
+        {:selected, columns, rows} ->
+
+          {:ok, query, %ClickhouseEcto.Result{
+                  command: :selected,
+                  columns: columns,
+                  rows: rows,
+                  num_rows: Enum.count(rows)
+                }, state}
       {:updated, count} ->
-        {
-          :ok,
-          %ClickhouseEcto.Result{
-            command: :updated,
-            columns: ["count"],
-            rows: [[count]],
-            num_rows: 1
-          },
-          state
-        }
+
+        {:ok, query, %ClickhouseEcto.Result{
+                command: :updated,
+                columns: ["count"],
+                rows: [[count]],
+                num_rows: 1
+              }, state}
+
+
+
+
       {command, columns, rows} ->
         {
           :ok,

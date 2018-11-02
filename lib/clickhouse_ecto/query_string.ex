@@ -2,7 +2,7 @@ defmodule ClickhouseEcto.QueryString do
 
   alias Ecto.Query
   alias Ecto.SubQuery
-  alias Ecto.Query.{BooleanExpr, JoinExpr, QueryExpr}
+  alias Ecto.Query.{BooleanExpr, JoinExpr, QueryExpr, FromExpr}
   alias ClickhouseEcto.Connection
   alias ClickhouseEcto.Helpers
 
@@ -196,7 +196,8 @@ defmodule ClickhouseEcto.QueryString do
     end
   end
 
-  def expr(%Ecto.SubQuery{query: query, params: params}, _sources, _query) do
+  # FIXME Instead of FromExpr should be Subquery
+  def expr(%Ecto.Query.FromExpr{source: %Ecto.SubQuery{query: query}}, _sources, _query) do
     Connection.all(query)
   end
 
@@ -274,6 +275,7 @@ defmodule ClickhouseEcto.QueryString do
 
   def returning(returning), do: raise "RETURNING is not supported!"
 
+<<<<<<< HEAD
   def create_names(%{prefix: prefix, sources: sources}) do
 
     create_names(prefix, sources, 0, tuple_size(sources))
@@ -300,9 +302,56 @@ end
     |> Stream.map(fn {x,index}  -> x |> create_name(prefix, index) end)
     |> Enum.to_list
 
+=======
+  def create_names(%{sources: sources}) do
+      create_names(sources, 0, tuple_size(sources)) |> List.to_tuple()
+    end
+
+  def create_names(sources, pos, limit) when pos < limit do
+    [create_name(sources, pos) | create_names(sources, pos + 1, limit)]
+>>>>>>> Adapted to Ecto 3.0.0
   end
 
-  def create_names(_prefix, _sources, pos, pos) do
+  def create_names(_sources, pos, pos) do
     []
   end
+
+  def create_name(sources, pos) do
+    case elem(sources, pos) do
+      {:fragment, _, _} ->
+        {nil, [?f | Integer.to_string(pos)], nil}
+
+      {table, schema, prefix} ->
+        name = [create_alias(table) | Integer.to_string(pos)]
+        {quote_table(prefix, table), name, schema}
+
+      %Ecto.SubQuery{} ->
+        {nil, [?s | Integer.to_string(pos)], nil}
+    end
+  end
+
+    defp create_alias(<<first, _rest::binary>>) when first in ?a..?z when first in ?A..?Z do
+      <<first>>
+    end
+    defp create_alias(_) do
+      "t"
+    end
+    defp quote_table(nil, name),    do: quote_table(name)
+    defp quote_table(prefix, name), do: [quote_table(prefix), ?., quote_table(name)]
+
+    defp quote_table(name) when is_atom(name),
+      do: quote_table(Atom.to_string(name))
+    defp quote_table(name) do
+      if String.contains?(name, "\"") do
+        error!(nil, "bad table name #{inspect name}")
+      end
+      [?", name, ?"]
+    end
+
+    defp error!(nil, message) do
+      raise ArgumentError, message
+    end
+    defp error!(query, message) do
+      raise Ecto.QueryError, query: query, message: message
+    end
 end
