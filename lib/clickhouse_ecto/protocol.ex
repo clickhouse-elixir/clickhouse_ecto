@@ -33,6 +33,7 @@ defmodule ClickhouseEcto.Protocol do
 
     base_address = build_base_address(scheme, hostname, port)
 
+    # TODO Ping instead select 1
     case Client.send("SELECT 1", base_address, timeout, username, password, database) do
       {:selected, _, _} ->
         {
