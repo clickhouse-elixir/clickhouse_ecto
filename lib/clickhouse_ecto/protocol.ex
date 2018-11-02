@@ -29,7 +29,7 @@ defmodule ClickhouseEcto.Protocol do
     database = opts[:database] || "default"
     username = opts[:username] || nil
     password = opts[:password] || nil
-    timeout = opts[:timeout] || ClickhouseEcto.timeout()
+    timeout = opts[:timeout] || ClickhouseEcto.Driver.timeout()
 
     base_address = build_base_address(scheme, hostname, port)
 

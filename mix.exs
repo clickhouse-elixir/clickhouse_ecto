@@ -17,7 +17,7 @@ defmodule ClickhouseEcto.Mixfile do
   # Run "mix help compile.app" to learn about applications.
   def application do
     [
-      applications: [:logger, :ecto]
+      applications: [:logger, :ecto, :httpoison, :db_connection]
     ]
   end
 
