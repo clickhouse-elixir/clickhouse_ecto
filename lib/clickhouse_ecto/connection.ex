@@ -1,5 +1,5 @@
 defmodule ClickhouseEcto.Connection do
-  alias Clickhousex.Query
+  alias ClickhouseEcto.QueryDriver, as: Query
   alias ClickhouseEcto.Query, as: SQL
 
   @typedoc "The prepared query which is an SQL command"
@@ -13,7 +13,7 @@ defmodule ClickhouseEcto.Connection do
   """
   @spec child_spec(options :: Keyword.t) :: {module, Keyword.t}
   def child_spec(opts) do
-    DBConnection.child_spec(Clickhousex.Protocol, opts)
+    DBConnection.child_spec(ClickhouseEcto.Protocol, opts)
   end
 
   @doc """
@@ -26,7 +26,7 @@ defmodule ClickhouseEcto.Connection do
     case DBConnection.prepare_execute(conn, query, params, options) do
       {:ok, query, result} ->
         {:ok, %{query | statement: prepared_query}, process_rows(result, options)}
-      {:error, %Clickhousex.Error{}} = error ->
+      {:error, %ClickhouseEcto.Error{}} = error ->
         if is_no_data_found_bug?(error, prepared_query) do
           {:ok, %Query{name: "", statement: prepared_query}, %{num_rows: 0, rows: []}}
         else
@@ -47,7 +47,7 @@ defmodule ClickhouseEcto.Connection do
     case DBConnection.prepare_execute(conn, query, params, options) do
       {:ok, _query, result} ->
         {:ok, process_rows(result, options)}
-      {:error, %Clickhousex.Error{}} = error ->
+      {:error, %ClickhouseEcto.Error{}} = error ->
         if is_no_data_found_bug?(error, query.statement) do
           {:ok, %{num_rows: 0, rows: []}}
         else

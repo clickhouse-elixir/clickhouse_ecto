@@ -23,7 +23,7 @@ defmodule ExampleApp.Mixfile do
       mod: {ExampleApp, []},
       applications: [
         :phoenix, :phoenix_pubsub, :phoenix_html, :cowboy, :logger, :gettext,
-        :phoenix_ecto, :postgrex, :clickhousex, :clickhouse_ecto
+        :phoenix_ecto, :postgrex, :ClickhouseEcto, :clickhouse_ecto
       ]
     ]
   end

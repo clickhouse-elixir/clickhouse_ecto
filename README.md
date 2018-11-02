@@ -1,6 +1,6 @@
 # ClickhouseEcto
 
-Ecto adapter for ClickHouse database using [clickhousex driver](http://github.com/appodeal/clickhousex).
+Ecto adapter for ClickHouse database using [ClickhouseEcto driver](http://github.com/appodeal/ClickhouseEcto).
 
 ## Installation
 
@@ -33,7 +33,7 @@ config :example_app, ExampleApp.ClickHouseRepo,
        pool_size: 30
 ```
 
-Do not forget to add :clickhouse_ecto and :clickhousex to your
+Do not forget to add :clickhouse_ecto and :ClickhouseEcto to your
 applications:
 
 ```elixir
@@ -41,7 +41,7 @@ applications:
     [
       mod: {ExampleApp, []},
       applications: [
-        :clickhousex, :clickhouse_ecto
+        :ClickhouseEcto, :clickhouse_ecto
       ]
     ]
   end

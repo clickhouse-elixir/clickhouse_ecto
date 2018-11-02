@@ -25,8 +25,11 @@ defmodule ClickhouseEcto.Mixfile do
   defp deps do
     [
       {:ecto, "~> 2.1"},
-      {:clickhousex, "~> 0.2.3"},
-      {:ex_doc, "~> 0.19", only: :dev}
+      {:ex_doc, "~> 0.19", only: :dev},
+      {:db_connection, "~> 1.1"},
+      {:httpoison, "~> 1.0"},
+      {:poison, ">= 1.0.0"},
+
     ]
   end
 
@@ -41,7 +44,7 @@ defmodule ClickhouseEcto.Mixfile do
   end
 
   defp description do
-    "Ecto adapter for ClickHouse database (uses clickhousex driver)"
+    "Ecto adapter for ClickHouse database (uses ClickhouseEcto driver)"
   end
 
   defp maintainers do

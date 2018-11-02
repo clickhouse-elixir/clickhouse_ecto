@@ -38,7 +38,7 @@ defmodule ClickhouseEcto.Storage do
   end
 
   defp run_query(sql, opts) do
-#    {:ok, _} = Application.ensure_all_started(:clickhousex)
+#    {:ok, _} = Application.ensure_all_started(:ClickhouseEcto)
 
     opts =
       opts
@@ -50,7 +50,7 @@ defmodule ClickhouseEcto.Storage do
 
     task = Task.Supervisor.async_nolink(pid, fn ->
       HTTPoison.start
-      {:ok, conn} = DBConnection.start_link(Clickhousex.Protocol, opts)
+      {:ok, conn} = DBConnection.start_link(ClickhouseEcto.Protocol, opts)
       value = ClickhouseEcto.Connection.execute(conn, sql, [], opts)
       GenServer.stop(conn)
       value
