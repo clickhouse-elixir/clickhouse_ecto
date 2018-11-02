@@ -5,4 +5,4 @@
                         'Elixir.Decimal.Error','Elixir.Inspect.Decimal',
                         'Elixir.String.Chars.Decimal']},
               {registered,[]},
-              {vsn,"1.4.0"}]}.
+              {vsn,"1.5.0"}]}.
