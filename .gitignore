@@ -3,3 +3,5 @@
 .idea/*
 *.iml
 /doc
+/examples
+/.elixir_lss
