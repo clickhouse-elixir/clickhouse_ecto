@@ -1,0 +1,11 @@
+{application,machine_gun,
+             [{applications,[kernel,stdlib,elixir,poolboy,gun]},
+              {description,"HTTP/1 and HTTP/2 client for Elixir. Based on Gun and Poolboy."},
+              {modules,['Elixir.MachineGun','Elixir.MachineGun.Application',
+                        'Elixir.MachineGun.Error','Elixir.MachineGun.Request',
+                        'Elixir.MachineGun.Response',
+                        'Elixir.MachineGun.Supervisor',
+                        'Elixir.MachineGun.Worker']},
+              {registered,[]},
+              {vsn,"0.1.2"},
+              {mod,{'Elixir.MachineGun.Application',[]}}]}.

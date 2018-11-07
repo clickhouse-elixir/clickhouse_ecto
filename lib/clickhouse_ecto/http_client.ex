@@ -20,7 +20,7 @@ defmodule ClickhouseEcto.HTTPClient do
     query_normalized = query |> normalize_query(command)
     opts_new = opts ++ [params: %{database: database}]
 
-    res = HTTPoison.request(:post, base_address, query_normalized, @req_headers, opts_new)
+    res = MachineGun.request(:post, base_address, query_normalized, @req_headers, opts_new)
     case res do
       {:ok, resp} ->
         cond do

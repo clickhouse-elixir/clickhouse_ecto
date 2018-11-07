@@ -1,6 +1,6 @@
 {application,clickhouse_ecto,
              [{applications,[kernel,stdlib,elixir,logger,ecto,httpoison,
-                             db_connection]},
+                             db_connection,machine_gun]},
               {description,"Ecto adapter for ClickHouse database (uses ClickhouseEcto driver)"},
               {modules,['Elixir.ClickhouseEcto',
                         'Elixir.ClickhouseEcto.Connection',
