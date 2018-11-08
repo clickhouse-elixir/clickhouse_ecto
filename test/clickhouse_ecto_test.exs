@@ -13,7 +13,14 @@ defmodule ClickhouseEctoTest do
       field :x, :integer
       field :y, :integer
       field :z, :integer
+
     end
+    schema "rererer" do
+      field :s, :integer
+      field :d, :integer
+      field :q, :integer
+    end
+
   end
 
   defp normalize(query, operation \\ :all, counter \\ 0) do

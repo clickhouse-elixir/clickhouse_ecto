@@ -275,21 +275,31 @@ defmodule ClickhouseEcto.QueryString do
   def returning(returning), do: raise "RETURNING is not supported!"
 
   def create_names(%{prefix: prefix, sources: sources}) do
-    create_names(prefix, sources, 0, tuple_size(sources)) |> List.to_tuple()
+
+    create_names(prefix, sources, 0, tuple_size(sources))
+     |> List.to_tuple()
   end
 
-  def create_names(prefix, sources, pos, limit) when pos < limit do
-    current =
-      case elem(sources, pos) do
-        {table, schema} ->
-          name = [String.first(table) | Integer.to_string(pos)]
-          {Helpers.quote_table(prefix, table), name, schema}
-        {:fragment, _, _} ->
-          {nil, [?f | Integer.to_string(pos)], nil}
-        %Ecto.SubQuery{} ->
-          {nil, [?s | Integer.to_string(pos)], nil}
-      end
-    [current | create_names(prefix, sources, pos + 1, limit)]
+  def create_name(source, prefix, index) do
+    source |> IO.inspect
+    case source do
+    {table, schema} ->
+      name = [String.first(table) | Integer.to_string(index)]
+      {Helpers.quote_table(prefix, table), name, schema}
+    {:fragment, _, _} ->
+      {nil, [?f |Integer.to_string(index)], nil}
+    %Ecto.SubQuery{} ->
+      {nil, [?s | Integer.to_string(index)], nil}
+  end
+end
+
+
+  def create_names(prefix, sources, pos, limit) do
+
+    Tuple.to_list(sources) |> Stream.with_index
+    |> Stream.map(fn {x,index}  -> x |> create_name(prefix, index) end)
+    |> Enum.to_list
+
   end
 
   def create_names(_prefix, _sources, pos, pos) do
