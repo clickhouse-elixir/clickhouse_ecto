@@ -32,10 +32,10 @@ defmodule ClickhouseEcto.Protocol do
     timeout = opts[:timeout] || ClickhouseEcto.Driver.timeout()
 
     base_address = build_base_address(scheme, hostname, port)
-
+    method = :get
     # TODO Ping instead select 1
-    case Client.send("SELECT 1", base_address, timeout, username, password, database) do
-      {:selected, _, _} ->
+    case Client.send("", base_address, timeout, username, password, database, method) do
+      {:updated, _} ->
         {
           :ok,
           %__MODULE__{
@@ -66,8 +66,9 @@ defmodule ClickhouseEcto.Protocol do
     {:ok, state} |
     {:disconnect, term, state}
   def ping(state) do
-    query = %ClickhouseEcto.QueryDriver{name: "ping", statement: "SELECT 1"}
-    case do_query(query, [], [], state) do
+
+    query = %ClickhouseEcto.QueryDriver{name: "ping", statement: ""}
+    case do_query(query, [], [], state, :get) do
       {:ok, _, new_state} -> {:ok, new_state}
       {:error, reason, new_state} -> {:disconnect, reason, new_state}
       other -> other
@@ -104,10 +105,10 @@ defmodule ClickhouseEcto.Protocol do
           {:ok, result, state} |
           {:error | :disconnect, Exception.t, state}
   def handle_execute(query, params, opts, state) do
-    do_query(query, params, opts, state)
+    do_query(query, params, opts, state, :post)
   end
 
-  defp do_query(query, params, opts, state) do
+  defp do_query(query, params, opts, state, method) do
     base_address = state.base_address
     username = state.conn_opts[:username]
     password = state.conn_opts[:password]
@@ -115,7 +116,7 @@ defmodule ClickhouseEcto.Protocol do
     database = state.conn_opts[:database]
 
     sql_query = query.statement |> IO.iodata_to_binary() |> Helpers.bind_query_params(params)
-    res = sql_query |> Client.send(base_address, timeout, username, password, database) |> handle_errors()
+    res = sql_query |> Client.send(base_address, timeout, username, password, database, method) |> handle_errors()
 
     case res do
       {:error, %Error{code: :connection_exception} = reason} ->

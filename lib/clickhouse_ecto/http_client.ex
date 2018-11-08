@@ -6,21 +6,26 @@ defmodule ClickhouseEcto.HTTPClient do
   @selected_queries_regex ~r/^(SELECT|SHOW|DESCRIBE|EXISTS)/i
   @req_headers [{"Content-Type", "text/plain"}]
 
-  def send(query, base_address, timeout, username, password, database) when username != nil do
-    opts = [hackney: [basic_auth: {username, password}], timeout: timeout, recv_timeout: timeout]
-    send_p(query, base_address, database, opts)
+  def send(query, base_address, timeout, username, password, database, method) when username != nil do
+    # TODO change hackney auth
+    opts = %{hackney: [basic_auth: {username, password}], timeout: timeout, recv_timeout: timeout}
+
+    send_p(query, base_address, database, opts, method)
   end
 
-  def send(query, base_address, timeout, username, password, database) when username == nil do
-    send_p(query, base_address, database, [timeout: timeout, recv_timeout: timeout])
+  def send(query, base_address, timeout, username, password, database, method) when username == nil do
+
+    send_p(query, base_address, database, %{timeout: timeout, recv_timeout: timeout}, method)
   end
 
-  defp send_p(query, base_address, database, opts) do
+  @doc false
+  defp send_p(query, base_address, database, opts, method) do
     command = parse_command(query)
     query_normalized = query |> normalize_query(command)
-    opts_new = opts ++ [params: %{database: database}]
+    opts_new = Map.merge(opts, %{params: %{database: database}})
 
-    res = MachineGun.request(:post, base_address, query_normalized, @req_headers, opts_new)
+
+    res = MachineGun.request(method, base_address, query_normalized, @req_headers, opts_new)
     case res do
       {:ok, resp} ->
         cond do
