@@ -1,7 +1,8 @@
 defmodule ClickhouseEcto.Storage do
-
+  import MachineGun
   @behaviour Ecto.Adapter.Storage
 
+  @spec storage_up(keyword()) :: :ok | {:error, :already_up | binary()}
   def storage_up(opts) do
     database = Keyword.fetch!(opts, :database) || raise ":database is nil in repository configuration"
     opts     = Keyword.put(opts, :database, nil)

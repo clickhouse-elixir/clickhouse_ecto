@@ -17,7 +17,7 @@ defmodule ClickhouseEcto.Mixfile do
   # Run "mix help compile.app" to learn about applications.
   def application do
     [
-      applications: [:logger, :ecto, :httpoison, :db_connection]
+      applications: [:logger, :ecto, :httpoison, :db_connection, :machine_gun]
     ]
   end
 
@@ -30,6 +30,7 @@ defmodule ClickhouseEcto.Mixfile do
       {:db_connection, "~> 2.0"},
       {:httpoison, "~> 1.0"},
       {:poison, ">= 1.0.0"},
+      {:machine_gun, "~>0.1.2"}
 
     ]
   end
