@@ -39,6 +39,9 @@ defmodule ClickhouseEcto.Query do
           header :: [atom], rows :: [[atom | nil]],
           on_conflict :: Ecto.Adapter.on_conflict, returning :: [atom]) :: String.t
   def insert(prefix, table, header, rows, on_conflict, returning) do
+
+
+
     included_fields = header
                       |> Enum.filter(fn value -> Enum.any?(rows, fn row -> value in row end) end)
 
@@ -51,16 +54,51 @@ defmodule ClickhouseEcto.Query do
              fn {row, _col} -> row end)
       end)
 
-    fields = intersperse_map(included_fields, ?,, &quote_name/1)
+    fields = magic(included_fields)
+    list = case_table(prefix, table)
+
     query = [
-      "INSERT INTO ", quote_table(prefix, table),
+      "INSERT INTO ", magic_table(list),
       " (", fields, ")",
       " VALUES ",
-      insert_all(included_rows, 1),
+      magic_rows(included_rows),
     ]
     IO.iodata_to_binary(query)
   end
+  # magic part
+  defp magic(list) do
+    Enum.map(list, fn x -> Atom.to_string(x) end)
+    |> Enum.map(fn concat -> "\"" <> concat <> "\"" end)
+    |> Enum.join(",")
+  end
 
+  defp case_table(prefix, table) do
+    case prefix do
+      nil -> [table]
+      prefix -> [prefix, table]
+    end
+  end
+
+  defp magic_table(list) do
+    Enum.map(list, fn concat -> "\"" <> concat <> "\"" end)
+    |> Enum.join(".")
+  end
+
+  defp magic_rows(rows) do
+      questions = Enum.map(rows, fn x ->
+        Enum.reduce(x, [], fn (lam, acc) ->
+          case lam  do
+            nil -> acc ++ ["DEFAULT"]
+            _ -> acc ++ ["?"]
+          end
+        end )
+        |> Enum.join(",") end)
+        |> Enum.map(fn concat -> "(" <> concat <> ")" end)
+        |> Enum.join(",")
+
+  end
+
+  # old part
   defp insert_all(rows, counter) do
     intersperse_reduce(rows, ?,, counter, fn row, counter ->
       {row, counter} = insert_each(row, counter)

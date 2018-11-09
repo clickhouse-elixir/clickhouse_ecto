@@ -282,7 +282,7 @@ defmodule ClickhouseEcto.QueryString do
   end
 
   def create_name(source, prefix, index) do
-    source |> IO.inspect
+
     case source do
     {table, schema} ->
       name = [String.first(table) | Integer.to_string(index)]

@@ -14,11 +14,7 @@ defmodule ClickhouseEctoTest do
       field :z, :integer
 
     end
-    schema "rererer" do
-      field :s, :integer
-      field :d, :integer
-      field :q, :integer
-    end
+
 
   end
 
