@@ -61,11 +61,11 @@ defmodule ClickhouseEcto.Query do
       "INSERT INTO ", magic_table(list),
       " (", fields, ")",
       " VALUES ",
-      insert_all(included_rows, 1),
+      magic_rows(included_rows),
     ]
     IO.iodata_to_binary(query)
   end
-
+  # magic part
   defp magic(list) do
     Enum.map(list, fn x -> Atom.to_string(x) end)
     |> Enum.map(fn concat -> "\"" <> concat <> "\"" end)
@@ -84,6 +84,21 @@ defmodule ClickhouseEcto.Query do
     |> Enum.join(".")
   end
 
+  defp magic_rows(rows) do
+      questions = Enum.map(rows, fn x ->
+        Enum.reduce(x, [], fn (lam, acc) ->
+          case lam  do
+            nil -> acc ++ ["DEFAULT"]
+            _ -> acc ++ ["?"]
+          end
+        end )
+        |> Enum.join(",") end)
+        |> Enum.map(fn concat -> "(" <> concat <> ")" end)
+        |> Enum.join(",")
+
+  end
+
+  # old part
   defp insert_all(rows, counter) do
     intersperse_reduce(rows, ?,, counter, fn row, counter ->
       {row, counter} = insert_each(row, counter)
