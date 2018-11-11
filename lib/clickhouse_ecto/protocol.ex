@@ -32,10 +32,16 @@ defmodule ClickhouseEcto.Protocol do
     timeout = opts[:timeout] || ClickhouseEcto.Driver.timeout()
 
     base_address = build_base_address(scheme, hostname, port)
+<<<<<<< HEAD
     method = :get
     # TODO Ping instead select 1
     case Client.send("", base_address, timeout, username, password, database, method) do
       {:updated, _} ->
+=======
+
+    case Client.send("SELECT 1", base_address, timeout, username, password, database) do
+      {:selected, _, _} ->
+>>>>>>> parent of d15c702... Fixed link on adapter
         {
           :ok,
           %__MODULE__{

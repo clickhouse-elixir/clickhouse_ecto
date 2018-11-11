@@ -4,7 +4,7 @@ defmodule ClickhouseEcto do
   @moduledoc false
   @behaviour Ecto.Adapter.Storage
 
-  use Ecto.Adapters.SQL, :clickhouse_ecto
+  use Ecto.Adapters.SQL, :ClickhouseEcto
 
   alias ClickhouseEcto.Migration
   alias ClickhouseEcto.Storage
