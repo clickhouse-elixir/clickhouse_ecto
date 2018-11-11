@@ -24,10 +24,9 @@ defmodule ClickhouseEcto.Mixfile do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:ecto, "~> 3.0.0-rc1"},
-      {:ecto_sql, "~> 3.0.0-rc1"},
+      {:ecto, "~> 2.1"},
       {:ex_doc, "~> 0.19", only: :dev},
-      {:db_connection, "~> 2.0"},
+      {:db_connection, "~> 1.1"},
       {:httpoison, "~> 1.0"},
       {:poison, ">= 1.0.0"},
       {:machine_gun, "~>0.1.2"}

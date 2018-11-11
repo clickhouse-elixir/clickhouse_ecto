@@ -39,7 +39,7 @@ defmodule ClickhouseEcto.Storage do
   end
 
   defp run_query(sql, opts) do
-#    {:ok, _} = Application.ensure_all_started(:ClickhouseEcto)
+    {:ok, _} = Application.ensure_all_started(:clickhouse_ecto)
 
     opts =
       opts

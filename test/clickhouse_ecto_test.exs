@@ -3,6 +3,7 @@ defmodule ClickhouseEctoTest do
   doctest ClickhouseEcto
 
   import Ecto.Query
+
   alias ClickhouseEcto.Connection, as: SQL
 
   defmodule Schema do
@@ -18,8 +19,9 @@ defmodule ClickhouseEctoTest do
 
   end
 
-  defp normalize(query, operation \\ :all) do
-    {query, _params} = Ecto.Adapter.Queryable.plan_query(operation, ClickhouseEcto, query)
+  defp normalize(query, operation \\ :all, counter \\ 0) do
+    {query, _params, _key} = Ecto.Query.Planner.prepare(query, operation, ClickhouseEcto, counter)
+    {query, _} = Ecto.Query.Planner.normalize(query, operation, ClickhouseEcto, counter)
     query
   end
 

@@ -23,7 +23,6 @@ defmodule ClickhouseEcto.Connection do
   {:ok, query :: map, term} | {:error, Exception.t}
   def prepare_execute(conn, name, prepared_query, params, options) do
     query = %Query{name: name, statement: prepared_query}
-    query |> IO.inspect
     case DBConnection.prepare_execute(conn, query, params, options) do
       {:ok, query, result} ->
         {:ok, %{query | statement: prepared_query}, process_rows(result, options)}

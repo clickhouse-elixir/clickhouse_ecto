@@ -32,16 +32,10 @@ defmodule ClickhouseEcto.Protocol do
     timeout = opts[:timeout] || ClickhouseEcto.Driver.timeout()
 
     base_address = build_base_address(scheme, hostname, port)
-<<<<<<< HEAD
     method = :get
     # TODO Ping instead select 1
     case Client.send("", base_address, timeout, username, password, database, method) do
       {:updated, _} ->
-=======
-
-    case Client.send("SELECT 1", base_address, timeout, username, password, database) do
-      {:selected, _, _} ->
->>>>>>> parent of d15c702... Fixed link on adapter
         {
           :ok,
           %__MODULE__{
@@ -125,33 +119,32 @@ defmodule ClickhouseEcto.Protocol do
     res = sql_query |> Client.send(base_address, timeout, username, password, database, method) |> handle_errors()
 
     case res do
-      {:error, %ClickhouseEcto.Error{code: :connection_exception} = reason} ->
+      {:error, %Error{code: :connection_exception} = reason} ->
         {:disconnect, reason, state}
-
       {:error, reason} ->
         {:error, reason, state}
-
-
-        {:selected, columns, rows} ->
-
-          {:ok, query, %ClickhouseEcto.Result{
-                  command: :selected,
-                  columns: columns,
-                  rows: rows,
-                  num_rows: Enum.count(rows)
-                }, state}
+      {:selected, columns, rows} ->
+        {
+          :ok,
+          %ClickhouseEcto.Result{
+            command: :selected,
+            columns: columns,
+            rows: rows,
+            num_rows: Enum.count(rows)
+          },
+          state
+        }
       {:updated, count} ->
-
-        {:ok, query, %ClickhouseEcto.Result{
-                command: :updated,
-                columns: ["count"],
-                rows: [[count]],
-                num_rows: 1
-              }, state}
-
-
-
-
+        {
+          :ok,
+          %ClickhouseEcto.Result{
+            command: :updated,
+            columns: ["count"],
+            rows: [[count]],
+            num_rows: 1
+          },
+          state
+        }
       {command, columns, rows} ->
         {
           :ok,
