@@ -40,35 +40,48 @@ defmodule ClickhouseEcto.Query do
           on_conflict :: Ecto.Adapter.on_conflict, returning :: [atom]) :: String.t
   def insert(prefix, table, header, rows, on_conflict, returning) do
 
-
-
     included_fields = header
                       |> Enum.filter(fn value -> Enum.any?(rows, fn row -> value in row end) end)
 
-    included_rows =
-      Enum.map(rows, fn row ->
-        row
-        |> Enum.zip(header)
-        |> Enum.filter_map(
-             fn {_row, col} -> col in included_fields end,
-             fn {row, _col} -> row end)
-      end)
 
-    fields = magic(included_fields)
+    included_rows = Enum.map(rows, fn row -> create_rows(row) end)  |> Enum.join(",")
+
+     """
+    Old realisation
+
+
+    #  old_rows = Enum.map(rows, fn row ->
+    #   row
+    #   |> Enum.zip(header)
+    #   |> Enum.filter_map(
+    #         fn {_row, col} -> col in included_fields end,
+    #         fn {row, _col} -> row end)
+    # end)
+
+    """
+    fields = convert_fields(included_fields)
     list = case_table(prefix, table)
 
+
+    # quote_table(prefix, table) and insert_all - old realisation
+
+
     query = [
-      "INSERT INTO ", magic_table(list),
+      "INSERT INTO ", # quote_table(prefix, table),
+     convert_table(list),
       " (", fields, ")",
       " VALUES ",
-      magic_rows(included_rows),
+       # insert_all(old_rows, 1)
+     included_rows
+
     ]
+
     IO.iodata_to_binary(query)
+
   end
-  # magic part
-  defp magic(list) do
-    Enum.map(list, fn x -> Atom.to_string(x) end)
-    |> Enum.map(fn concat -> "\"" <> concat <> "\"" end)
+  # convert_fields part
+  defp convert_fields(list) do
+    Stream.map(list, fn x -> "\"" <> Atom.to_string(x)<> "\"" end)
     |> Enum.join(",")
   end
 
@@ -79,23 +92,22 @@ defmodule ClickhouseEcto.Query do
     end
   end
 
-  defp magic_table(list) do
+  defp convert_table(list) do
     Enum.map(list, fn concat -> "\"" <> concat <> "\"" end)
     |> Enum.join(".")
   end
 
-  defp magic_rows(rows) do
-      questions = Enum.map(rows, fn x ->
-        Enum.reduce(x, [], fn (lam, acc) ->
+  defp create_rows(row) do
+      questions =
+        Enum.reduce(row, [], fn (lam, acc) ->
           case lam  do
             nil -> acc ++ ["DEFAULT"]
             _ -> acc ++ ["?"]
           end
         end )
-        |> Enum.join(",") end)
-        |> Enum.map(fn concat -> "(" <> concat <> ")" end)
         |> Enum.join(",")
 
+       "(" <> questions <> ")"
   end
 
   # old part
@@ -147,4 +159,5 @@ defmodule ClickhouseEcto.Query do
   def delete_all(%{from: from} = query) do
     raise "DELETE is not supported"
   end
+
 end
