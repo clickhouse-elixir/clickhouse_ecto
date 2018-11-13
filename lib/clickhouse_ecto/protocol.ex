@@ -115,7 +115,8 @@ defmodule ClickhouseEcto.Protocol do
     timeout = state.conn_opts[:timeout]
     database = state.conn_opts[:database]
 
-    sql_query = query.statement |> IO.iodata_to_binary() |> Helpers.bind_query_params(params)
+    sql_query = query.statement |> IO.iodata_to_binary()
+    |> Helpers.bind_query_params(params)
     res = sql_query |> Client.send(base_address, timeout, username, password, database, method) |> handle_errors()
 
     case res do

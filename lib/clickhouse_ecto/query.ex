@@ -44,7 +44,7 @@ defmodule ClickhouseEcto.Query do
                       |> Enum.filter(fn value -> Enum.any?(rows, fn row -> value in row end) end)
 
 
-    included_rows = Enum.map(rows, fn row -> create_rows(row) end)  |> Enum.join(",")
+    included_rows = Enum.map(rows, fn row -> create_rows(row) end) |> Enum.join(",")
 
      """
     Old realisation
@@ -75,7 +75,7 @@ defmodule ClickhouseEcto.Query do
      included_rows
 
     ]
-
+    IO.puts("INSERT FUNCTION")
     IO.iodata_to_binary(query)
 
   end
@@ -111,13 +111,13 @@ defmodule ClickhouseEcto.Query do
   end
 
   # old part
-  defp insert_all(rows, counter) do
-    intersperse_reduce(rows, ?,, counter, fn row, counter ->
-      {row, counter} = insert_each(row, counter)
-      {[?(, row, ?)], counter}
-    end)
-    |> elem(0)
-  end
+  # defp insert_all(rows, counter) do
+  #   intersperse_reduce(rows, ?,, counter, fn row, counter ->
+  #     {row, counter} = insert_each(row, counter)
+  #     {[?(, row, ?)], counter}
+  #   end)
+  #   |> elem(0)
+  # end
 
   defp insert_each(values, counter) do
     intersperse_reduce(values, ?,, counter, fn
