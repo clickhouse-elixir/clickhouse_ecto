@@ -2,7 +2,7 @@ defmodule ClickhouseEcto.HTTPClient do
   @moduledoc false
 
   alias ClickhouseEcto.Types
-
+  alias ClickhouseEcto.Parsers
   @selected_queries_regex ~r/^(SELECT|SHOW|DESCRIBE|EXISTS)/i
   @req_headers [{"Content-Type", "text/plain"}]
 
@@ -32,6 +32,11 @@ defmodule ClickhouseEcto.HTTPClient do
           resp.status_code == 200 ->
             case command do
               :selected ->
+                desc = MachineGun.request(:post, base_address, "DESCRIBE TABLE test_type.test FORMAT JSON", @req_headers, opts_new)
+                {type, name} = Parsers.parse_types(desc.body) |> Enum.unzip
+                columns = name
+                rows = Parsers.row_binary_parser(resp.body, type)
+                # JSON REALISATION
                 # case Poison.decode(resp.body) do
                 #   {:ok, %{"meta" => meta, "data" => data, "rows" => _rows_count}} ->
                 #     columns = meta |> Enum.map(fn(%{"name" => name, "type" => _type}) -> name end)
@@ -71,5 +76,5 @@ defmodule ClickhouseEcto.HTTPClient do
     end
   end
 
-  defp query_with_format(query), do: query <> ""
+  defp query_with_format(query), do: query <> "FORMAT RowBinary"
 end

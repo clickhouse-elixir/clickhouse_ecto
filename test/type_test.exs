@@ -4,16 +4,36 @@ defmodule ClickhouseEcto.TypeTest do
   alias ClickhouseEcto.Result
   alias ClickhouseEcto.Parsers
 
-  test "parse types" do
+  setup_all do
+    {:ok, pid} = ClickhouseEcto.Driver.start_link([])
+    ClickhouseEcto.Driver.query!(pid, "DROP DATABASE IF EXISTS test_type", [])
+    {:ok, _, _} = ClickhouseEcto.Driver.query(pid, "CREATE DATABASE test_type", [])
+    {:ok, _, %Result{}}
+           = ClickhouseEcto.Driver.query(pid, "CREATE TABLE IF NOT EXISTS test_type.test (a String, b Int8, c Int16, d Int32,
+              e Int64, f UInt8, g UInt16, h UInt32, i UInt64, j Float32, k Float64, l Date, m DateTime) ENGINE = Memory", [])
+    list = ["\'qwerty\'", -25, -1502, -35000,
+      -2147483649, 25, 1502, 70000, 4294967298, -42.980000000000000, 42.98, "\'2018-11-14\'", "\'2015-09-13 22:27:15\'"]
+    sub_list = Enum.join(list, ", ")
+
+    {:ok, _, %Result{command: :updated, num_rows: 1}}
+           = ClickhouseEcto.Driver.query(pid, ["INSERT INTO test_type.test VALUES (" <> sub_list <> ")"], [])
+    {:ok, [list: list]}
+  end
+
+  test "parse types", %{list: list} do
     # assert {:ok, _, %Result{command: :updated, num_rows: 1}}
     # = ClickhouseEcto.Driver.query(pid, ["SELECT c FROM test_type.test FORMAT RowBinary"], [])
     types = MachineGun.request!(:post, "http://localhost:8123",
       "DESCRIBE TABLE test_type.test FORMAT JSON", [], %{}).body
 
-    assert ["UInt32", "UInt64", "Int8"] = Parsers.parse_types(types)
+    # assert ["String", "String"] = Parsers.parse_types(types)
 
     binary_data = MachineGun.request!(:post, "http://localhost:8123",
       "SELECT * FROM test_type.test FORMAT RowBinary", [], %{}).body
+
+    assert list =~ Parsers.row_binary_parser(binary_data, types)
+
+
 
     # Parsers.row_binary_parser(binary_data, types)
   end
@@ -21,37 +41,43 @@ defmodule ClickhouseEcto.TypeTest do
   test "convert types" do
     # int8
     int8_test = -25
-    assert int8_test = Parsers.binary_to_int8(<<int8_test::little-signed-integer-size(8)>>)
+    assert int8_test = Parsers.parse_binary(<<int8_test::little-signed-integer-size(8)>> |> :binary.bin_to_list, "Int8")
     # int16
     int16_test = -1502
-    assert int16_test = Parsers.binary_to_int16(<<int16_test::little-signed-integer-size(16)>>)
+    assert int16_test = Parsers.parse_binary(<<int16_test::little-signed-integer-size(16)>> |> :binary.bin_to_list, "Int16")
     # int32
     int32_test = -35000
-    assert int32_test = Parsers.binary_to_int32(<<int32_test::little-signed-integer-size(32)>>)
+    assert int32_test = Parsers.parse_binary(<<int32_test::little-signed-integer-size(32)>> |> :binary.bin_to_list, "Int32")
     # int64
     int64_test = -2147483649
-    assert int64_test = Parsers.binary_to_int64(<<int64_test::little-signed-integer-size(64)>>)
+    assert int64_test = Parsers.parse_binary(<<int64_test::little-signed-integer-size(64)>> |> :binary.bin_to_list, "Int64")
     # uint8
     uint8_test = 25
-    assert uint8_test = Parsers.binary_to_uint8(<<uint8_test::little-signed-integer-size(8)>>)
+    assert uint8_test = Parsers.parse_binary(<<uint8_test::little-signed-integer-size(8)>> |> :binary.bin_to_list, "UInt8")
     # uint16
     uint16_test = 1502
-    assert uint16_test = Parsers.binary_to_uint16(<<uint16_test::little-signed-integer-size(16)>>)
+    assert uint16_test = Parsers.parse_binary(<<uint16_test::little-signed-integer-size(16)>> |> :binary.bin_to_list,  "UInt16")
     # uint32
     uint32_test = 70000
-    assert uint32_test = Parsers.binary_to_uint32(<<uint32_test::little-signed-integer-size(32)>>)
+    assert uint32_test = Parsers.parse_binary(<<uint32_test::little-signed-integer-size(32)>> |> :binary.bin_to_list, "UInt32")
     # uint64
     uint64_test = 4294967298
-    assert uint64_test = Parsers.binary_to_uint64(<<uint64_test::little-signed-integer-size(64)>>)
+    assert uint64_test = Parsers.parse_binary(<<uint64_test::little-signed-integer-size(64)>> |> :binary.bin_to_list, "UInt64")
     # float32
     float32_test = -42.98
-    assert float32_test = Parsers.binary_to_float32(<<float32_test::little-float-size(32)>>)
+    assert float32_test = Parsers.parse_binary(<<float32_test::little-float-size(32)>> |> :binary.bin_to_list, "Float32")
     # float64
     float64_test = 42.98
-    assert float64_test = Parsers.binary_to_float64(<<float64_test::little-float-size(64)>>)
+    assert float64_test = Parsers.parse_binary(<<float64_test::little-float-size(64)>> |> :binary.bin_to_list, "Float64")
     # string
     string_test = "abrakadabra"
-    assert float64_test = Parsers.binary_to_string(<<11>> <> string_test <> <<0>>)
+    assert float64_test = Parsers.parse_binary(<<11>> <> string_test <> <<0>> |> :binary.bin_to_list, "String")
+    # date
+    date = 17849
+    assert date = Parsers.parse_binary(<<date::little-signed-integer-size(16)>> |> :binary.bin_to_list, "Date")
+    # datetime
+    datetime = 1442183235
+    assert datetime = Parsers.parse_binary(<<datetime::little-signed-integer-size(32)>> |> :binary.bin_to_list, "DateTime")
   end
 
 end
