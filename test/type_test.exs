@@ -12,7 +12,7 @@ defmodule ClickhouseEcto.TypeTest do
            = ClickhouseEcto.Driver.query(pid, "CREATE TABLE IF NOT EXISTS test_type.test (a String, b Int8, c Int16, d Int32,
               e Int64, f UInt8, g UInt16, h UInt32, i UInt64, j Float32, k Float64, l Date, m DateTime) ENGINE = Memory", [])
     list = ["\'qwerty\'", -25, -1502, -35000,
-      -2147483649, 25, 1502, 70000, 4294967298, -42.980000000000000, 42.98, "\'2018-11-14\'", "\'2015-09-13 22:27:15\'"]
+      -2147483649, 25, 1502, 70000, 4294967298, -42.981109619140625, 42.98, "\'2018-11-14\'", "\'2015-09-13 22:27:15\'"]
     sub_list = Enum.join(list, ", ")
 
     {:ok, _, %Result{command: :updated, num_rows: 1}}
@@ -31,7 +31,7 @@ defmodule ClickhouseEcto.TypeTest do
     binary_data = MachineGun.request!(:post, "http://localhost:8123",
       "SELECT * FROM test_type.test FORMAT RowBinary", [], %{}).body
 
-    assert list =~ Parsers.row_binary_parser(binary_data, types)
+    assert list |> Enum.join(", ") |> String.replace("\'", "") =~ Parsers.row_binary_parser(binary_data, types) |> hd |> Enum.join(", ")
 
 
 

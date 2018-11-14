@@ -177,7 +177,10 @@ defmodule ClickhouseEcto.Parsers do
     sub_list = Enum.take(binary_list, size) |> :binary.list_to_bin
 
     <<x::little-integer-size(32)>> = sub_list
-    result = DateTime.to_string(DateTime.from_unix!(x))
+    result = DateTime.from_unix!(x)
+      |> DateTime.to_string
+      |> String.replace("Z", "")
+
     IO.puts("---> " <> result)
     {result, size}
   end
