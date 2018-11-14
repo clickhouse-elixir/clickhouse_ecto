@@ -32,19 +32,20 @@ defmodule ClickhouseEcto.HTTPClient do
           resp.status_code == 200 ->
             case command do
               :selected ->
-                case Poison.decode(resp.body) do
-                  {:ok, %{"meta" => meta, "data" => data, "rows" => _rows_count}} ->
-                    columns = meta |> Enum.map(fn(%{"name" => name, "type" => _type}) -> name end)
-                    rows = data |> Enum.map(fn(data_row) ->
-                      meta
-                      |> Enum.map(fn(%{"name" => column, "type" => column_type}) ->
-                        Types.decode(data_row[column], column_type)
-                      end)
-                      |> List.to_tuple()
-                    end)
-                    {command, columns, rows}
-                  {:error, reason} -> {:error, reason}
-                end
+                # case Poison.decode(resp.body) do
+                #   {:ok, %{"meta" => meta, "data" => data, "rows" => _rows_count}} ->
+                #     columns = meta |> Enum.map(fn(%{"name" => name, "type" => _type}) -> name end)
+                #     rows = data |> Enum.map(fn(data_row) ->
+                #       meta
+                #       |> Enum.map(fn(%{"name" => column, "type" => column_type}) ->
+                #         Types.decode(data_row[column], column_type)
+                #       end)
+                #       |> List.to_tuple()
+                #     end)
+                #     {command, columns, rows}
+                #   {:error, reason} -> {:error, reason}
+                # end
+                {:selected, resp}
               :updated ->
                 {:updated, 1}
             end
@@ -70,5 +71,5 @@ defmodule ClickhouseEcto.HTTPClient do
     end
   end
 
-  defp query_with_format(query), do: query <> " FORMAT JSON"
+  defp query_with_format(query), do: query <> ""
 end

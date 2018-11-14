@@ -124,16 +124,16 @@ defmodule ClickhouseEcto.Protocol do
         {:disconnect, reason, state}
       {:error, reason} ->
         {:error, reason, state}
-      {:selected, columns, rows} ->
+      {:selected, resp} ->
         {
           :ok,
           %ClickhouseEcto.Result{
             command: :selected,
-            columns: columns,
-            rows: rows,
-            num_rows: Enum.count(rows)
+            columns: ["1"],
+            rows: [{"a","b","c"}],
+            num_rows: Enum.count([])
           },
-          state
+          resp
         }
       {:updated, count} ->
         {
