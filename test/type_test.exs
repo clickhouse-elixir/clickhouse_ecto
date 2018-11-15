@@ -21,7 +21,6 @@ defmodule ClickhouseEcto.TypeTest do
   end
 
   test "parse types", %{list: list} do
-
     types = MachineGun.request!(:post, "http://localhost:8123",
       "DESCRIBE TABLE test_type.test FORMAT JSON", [], %{}).body
 
@@ -36,11 +35,9 @@ defmodule ClickhouseEcto.TypeTest do
     assert ["String", "Int8", "Int16", "Int32",
     "Int64", "UInt8", "UInt16", "UInt32", "UInt64",
     "Float32", "Float64", "Date", "DateTime"] == Parsers.parse_types(types)
-
   end
 
   test "convert types" do
-
     # int8
     int8_test = -25
     assert int8_test = Parsers.parse_binary(<<int8_test::little-signed-integer-size(8)>> |> :binary.bin_to_list, "Int8")
@@ -81,5 +78,4 @@ defmodule ClickhouseEcto.TypeTest do
     datetime = 1442183235
     assert datetime = Parsers.parse_binary(<<datetime::little-signed-integer-size(32)>> |> :binary.bin_to_list, "DateTime")
   end
-
 end

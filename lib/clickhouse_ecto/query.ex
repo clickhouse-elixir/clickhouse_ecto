@@ -39,45 +39,25 @@ defmodule ClickhouseEcto.Query do
           header :: [atom], rows :: [[atom | nil]],
           on_conflict :: Ecto.Adapter.on_conflict, returning :: [atom]) :: String.t
   def insert(prefix, table, header, rows, on_conflict, returning) do
-
     included_fields = header
                       |> Enum.filter(fn value -> Enum.any?(rows, fn row -> value in row end) end)
 
-
     included_rows = Enum.map(rows, fn row -> create_rows(row) end) |> Enum.join(",")
 
-     """
-    Old realisation
-
-
-    #  old_rows = Enum.map(rows, fn row ->
-    #   row
-    #   |> Enum.zip(header)
-    #   |> Enum.filter_map(
-    #         fn {_row, col} -> col in included_fields end,
-    #         fn {row, _col} -> row end)
-    # end)
-
-    """
     fields = convert_fields(included_fields)
     list = case_table(prefix, table)
-
-
     # quote_table(prefix, table) and insert_all - old realisation
-
 
     query = [
       "INSERT INTO ", # quote_table(prefix, table),
-     convert_table(list),
+      convert_table(list),
       " (", fields, ")",
       " FORMAT RowBinary ",
        # insert_all(old_rows, 1)
-     included_rows
-
+      included_rows
     ]
     IO.puts("INSERT FUNCTION")
     IO.iodata_to_binary(query)
-
   end
   # convert_fields part
   defp convert_fields(list) do
@@ -98,26 +78,17 @@ defmodule ClickhouseEcto.Query do
   end
 
   defp create_rows(row) do
-      questions =
-        Enum.reduce(row, [], fn (lam, acc) ->
-          case lam  do
-            nil -> acc ++ ["DEFAULT"]
-            _ -> acc ++ ["?"]
-          end
-        end )
-        |> Enum.join(",")
+    questions =
+      Enum.reduce(row, [], fn (lam, acc) ->
+        case lam  do
+          nil -> acc ++ ["DEFAULT"]
+          _ -> acc ++ ["?"]
+        end
+      end)
+      |> Enum.join(",")
 
-       "(" <> questions <> ")"
+    "(" <> questions <> ")"
   end
-
-  # old part
-  # defp insert_all(rows, counter) do
-  #   intersperse_reduce(rows, ?,, counter, fn row, counter ->
-  #     {row, counter} = insert_each(row, counter)
-  #     {[?(, row, ?)], counter}
-  #   end)
-  #   |> elem(0)
-  # end
 
   defp insert_each(values, counter) do
     intersperse_reduce(values, ?,, counter, fn
