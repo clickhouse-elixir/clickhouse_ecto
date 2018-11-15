@@ -70,7 +70,7 @@ defmodule ClickhouseEcto.Query do
       "INSERT INTO ", # quote_table(prefix, table),
      convert_table(list),
       " (", fields, ")",
-      " VALUES ",
+      " FORMAT RowBinary ",
        # insert_all(old_rows, 1)
      included_rows
 

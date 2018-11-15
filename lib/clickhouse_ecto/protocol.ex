@@ -108,7 +108,20 @@ defmodule ClickhouseEcto.Protocol do
     do_query(query, params, opts, state, :post)
   end
 
-  defp do_query(query, params, opts, state, method) do
+  @spec do_query(
+          atom() | %{statement: any()},
+          [any()],
+          any(),
+          atom() | %{base_address: binary(), conn_opts: nil | keyword() | map()},
+          any()
+        ) ::
+          {:disconnect, ClickhouseEcto.ErrorDriver.t(),
+           atom() | %{base_address: binary(), conn_opts: nil | [{any(), any()}] | map()}}
+          | {:error, ClickhouseEcto.ErrorDriver.t(),
+             atom() | %{base_address: binary(), conn_opts: nil | [{any(), any()}] | map()}}
+          | {:ok, ClickhouseEcto.Result.t(),
+             atom() | %{base_address: binary(), conn_opts: nil | [{any(), any()}] | map()}}
+  def do_query(query, params, opts, state, method) do
     base_address = state.base_address
     username = state.conn_opts[:username]
     password = state.conn_opts[:password]
@@ -116,7 +129,7 @@ defmodule ClickhouseEcto.Protocol do
     database = state.conn_opts[:database]
 
     sql_query = query.statement |> IO.iodata_to_binary()
-    |> Helpers.bind_query_params(params)
+    |> Helpers.bind_query_params(params, base_address)
     res = sql_query |> Client.send(base_address, timeout, username, password, database, method) |> handle_errors()
 
     case res do

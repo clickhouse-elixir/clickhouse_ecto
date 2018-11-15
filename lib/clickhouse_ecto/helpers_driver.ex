@@ -1,11 +1,21 @@
 defmodule ClickhouseEcto.HelpersDriver do
   @moduledoc false
+  alias ClickhouseEcto.Parsers
+  defp parse_table(query) do
+    query |> IO.inspect
+    # here need to parse query to extract name of table
+    # name table should be between SELECT FROM ... WHERE/GROUP BY or nothing
+    result = Regex.split(~r/INSERT INTO|\(/, query)
+    Enum.drop(result, 1) |> hd |> IO.inspect
+  end
 
   @doc false
-  def bind_query_params(query, params) do
+  def bind_query_params(query, params, base_address) do
 
+    {query, params} |> IO.inspect
 
     query_parts = String.split(query, "?")
+
     case length(query_parts) do
       1 ->
         case length(params) do
@@ -18,8 +28,27 @@ defmodule ClickhouseEcto.HelpersDriver do
         if (len-1) != length(params) do
           raise ArgumentError, "The number of parameters does not correspond to the number of question marks!"
         end
-        param_for_query(query_parts, params)
+        #param_for_query(query_parts, params)
+        table = parse_table(query)
+        IO.puts("DESCRIBE TABLE "<>  table <> " FORMAT JSON")
+        desc = MachineGun.request!(:post, base_address,
+        "DESCRIBE TABLE "<>  table <> " FORMAT JSON", [], %{})
+
+        {type, name} = Parsers.parse_types(desc.body) |> Enum.unzip
+
+        binarize_params(query_parts, params, type)
     end
+  end
+
+  def binarize_params(query_parts, params, type) do
+
+    types_params = Enum.zip(params, type) |> IO.inspect
+    binarizated_params =
+    Enum.reduce(types_params, "", fn {val,type}, acc ->
+    acc <> Parsers.value_to_binary(val, type) end)
+
+
+    String.slice(hd(query_parts), 0..-2) <> binarizated_params |> IO.inspect
   end
 
   def param_for_query([query_head|query_tail], params) do

@@ -33,12 +33,14 @@ defmodule ClickhouseEcto.TypeTest do
     assert list |> Enum.join(", ") |> String.replace("\'", "") =~
     Parsers.row_binary_parser(binary_data, list_of_types) |>  hd |> Tuple.to_list|> Enum.join(", ")
 
-    # assert ["String", "String"] = Parsers.parse_types(types)
+    assert ["String", "Int8", "Int16", "Int32",
+    "Int64", "UInt8", "UInt16", "UInt32", "UInt64",
+    "Float32", "Float64", "Date", "DateTime"] == Parsers.parse_types(types)
 
-    # Parsers.row_binary_parser(binary_data, types)
   end
 
   test "convert types" do
+
     # int8
     int8_test = -25
     assert int8_test = Parsers.parse_binary(<<int8_test::little-signed-integer-size(8)>> |> :binary.bin_to_list, "Int8")
