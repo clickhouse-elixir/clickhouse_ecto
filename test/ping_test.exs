@@ -24,9 +24,9 @@ defmodule ClickhouseEcto.PingTest do
   password= nil
   timeout= 60000
   assert HTTPClient.send("", base_address, timeout, username, password, database, :get) == {:updated, 1}
-  # assert MachineGun.get!("http://localhost:8123?query=SELECT%201").body =~ "1"
-  #{:ok, new_state} = Protocol.ping(state)
-  #assert  state == new_state
+  assert MachineGun.get!("http://localhost:8123?query=SELECT%201").body =~ "1"
+  {:ok, new_state} = Protocol.ping(state)
+  assert  state == new_state
 
 
 end

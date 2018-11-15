@@ -1,31 +1,36 @@
 defmodule ClickhouseEcto.Parsers do
 
-  def row_binary_parser(binary_data, types) do
+  def row_binary_parser(binary_data, list_of_types) do
     IO.puts("row_binary_parser")
-    {list_of_types,_} = parse_types(types) |> Enum.unzip
     binary_list = :binary.bin_to_list(binary_data)
     binary_data |> IO.inspect(limit: 100)
-    result = convert_types(list_of_types, binary_list, 0) |> IO.inspect
+    list_of_types
+    result = convert_types(list_of_types, binary_list, 0) #|> IO.inspect
+    tupled_result = Enum.map(result, fn x -> List.to_tuple(x) end)|> IO.inspect
   end
 
   def parse_types(types) do
     IO.puts("parse_types")
+
     case Poison.decode(types) do
       {:ok, %{"data" => data}} ->
         columns = data |> Enum.map(fn(%{"type" => type, "name" => name}) -> {type, name} end)
+
+      # TODO error clause
     end
   end
 
   # convert binary data to types on the rows
   def convert_types(list_of_types, binary_list, position) when length(binary_list) == 0 do
+
     []
   end
 
   def convert_types(list_of_types, binary_list, position) do
     IO.puts("convert_types")
-    binary_list |> IO.inspect
+    binary_list #|> IO.inspect
 
-    result = convert_binary(list_of_types, binary_list, position) |> IO.inspect
+    result = convert_binary(list_of_types, binary_list, position) #|> IO.inspect
     crunch = List.last(result)
     cr_res = Enum.drop(result, -1)
     IO.puts("______________________________________")
@@ -33,6 +38,7 @@ defmodule ClickhouseEcto.Parsers do
   end
 
   # convert binary data to types on the row
+  @spec convert_binary(maybe_improper_list(), any(), any()) :: [...]
   def convert_binary(list_of_types, binary_list, res \\ 0)
 
   def convert_binary(list_of_types, binary_list, res) when length(list_of_types) == 0 do
@@ -41,12 +47,12 @@ defmodule ClickhouseEcto.Parsers do
 
   def convert_binary(list_of_types, binary_list, res) do
     IO.puts("convert_binary")
-    list_of_types |> IO.inspect
+    #list_of_types |> IO.inspect
     type = hd(list_of_types)
     {result, position} = parse_binary(binary_list, type)
     res = res + position
     IO.puts("******************")
-    res |> IO.inspect
+    res #|> IO.inspect
 
     [result | convert_binary(tl(list_of_types), Enum.drop(binary_list, position), res) ]
   end

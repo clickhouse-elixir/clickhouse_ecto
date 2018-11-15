@@ -21,6 +21,7 @@ defmodule ClickhouseEcto.HTTPClient do
   @doc false
   defp send_p(query, base_address, database, opts, method) do
     command = parse_command(query)
+
     query_normalized = query |> normalize_query(command)
     opts_new = Map.merge(opts, %{params: %{database: database}})
 
@@ -32,10 +33,17 @@ defmodule ClickhouseEcto.HTTPClient do
           resp.status_code == 200 ->
             case command do
               :selected ->
-                desc = MachineGun.request(:post, base_address, "DESCRIBE TABLE test_type.test FORMAT JSON", @req_headers, opts_new)
+                # FIXME insert database here
+                table = parse_table(query_normalized)
+                IO.puts("DESCRIBE TABLE "<>  table <> "FORMAT JSON")
+
+                desc = MachineGun.request!(:post, base_address,
+                "DESCRIBE TABLE "<>  table <> "FORMAT JSON", [], %{})
+
                 {type, name} = Parsers.parse_types(desc.body) |> Enum.unzip
                 columns = name
                 rows = Parsers.row_binary_parser(resp.body, type)
+
                 # JSON REALISATION
                 # case Poison.decode(resp.body) do
                 #   {:ok, %{"meta" => meta, "data" => data, "rows" => _rows_count}} ->
@@ -50,7 +58,7 @@ defmodule ClickhouseEcto.HTTPClient do
                 #     {command, columns, rows}
                 #   {:error, reason} -> {:error, reason}
                 # end
-                {:selected, resp}
+                {:selected, rows, columns}
               :updated ->
                 {:updated, 1}
             end
@@ -75,6 +83,12 @@ defmodule ClickhouseEcto.HTTPClient do
       _ -> query
     end
   end
+  defp parse_table(query) do
+    # here need to parse query to extract name of table
+    # name table should be between SELECT FROM ... WHERE/GROUP BY or nothing
+    result = Regex.split(~r/(FROM|WHERE|GROUP BY|FORMAT) */, query)
+    Enum.drop(result, 1) |> hd
+  end
 
-  defp query_with_format(query), do: query <> "FORMAT RowBinary"
+  defp query_with_format(query), do: query <> " FORMAT RowBinary"
 end

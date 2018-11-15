@@ -21,19 +21,19 @@ defmodule ClickhouseEcto.TypeTest do
   end
 
   test "parse types", %{list: list} do
-    # assert {:ok, _, %Result{command: :updated, num_rows: 1}}
-    # = ClickhouseEcto.Driver.query(pid, ["SELECT c FROM test_type.test FORMAT RowBinary"], [])
+
     types = MachineGun.request!(:post, "http://localhost:8123",
       "DESCRIBE TABLE test_type.test FORMAT JSON", [], %{}).body
 
-    # assert ["String", "String"] = Parsers.parse_types(types)
+    {list_of_types, name} = Parsers.parse_types(types) |> Enum.unzip
 
     binary_data = MachineGun.request!(:post, "http://localhost:8123",
       "SELECT * FROM test_type.test FORMAT RowBinary", [], %{}).body
 
-    assert list |> Enum.join(", ") |> String.replace("\'", "") =~ Parsers.row_binary_parser(binary_data, types) |> hd |> Enum.join(", ")
+    assert list |> Enum.join(", ") |> String.replace("\'", "") =~
+    Parsers.row_binary_parser(binary_data, list_of_types) |>  hd |> Tuple.to_list|> Enum.join(", ")
 
-
+    # assert ["String", "String"] = Parsers.parse_types(types)
 
     # Parsers.row_binary_parser(binary_data, types)
   end
