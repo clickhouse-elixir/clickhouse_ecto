@@ -1,17 +1,31 @@
 defmodule ClickhouseEcto.Parsers do
 
   def row_binary_parser(binary_data, list_of_types) do
-    IO.puts("row_binary_parser")
+    # IO.puts("row_binary_parser")
     binary_list = :binary.bin_to_list(binary_data)
     result = convert_types(list_of_types, binary_list, 0)
     tupled_result = Enum.map(result, fn x -> List.to_tuple(x) end)
   end
 
   def parse_types(types) do
-    IO.puts("parse_types")
+    # IO.puts("parse_types")
     case Poison.decode(types) do
       {:ok, %{"data" => data}} ->
-        columns = data |> Enum.map(fn(%{"type" => type, "name" => name}) -> {type, name} end)
+        columns = data
+          |> Enum.map(fn(%{"type" => type, "name" => name}) -> {type, name} end) |> IO.inspect
+      # TODO error clause
+    end
+  end
+
+  def parse_types(types, fields) do
+    fields |> IO.inspect
+    fixed_fields = Enum.map(fields, fn field -> String.replace(field, "\"", "") end)
+    # IO.puts("parse_types")
+    case Poison.decode(types) do
+      {:ok, %{"data" => data}} ->
+        columns = data
+          |> Enum.map(fn(%{"type" => type, "name" => name}) -> {type, name} end) |> IO.inspect
+          |> Enum.filter(fn {type, name} -> name in fixed_fields end) |> IO.inspect
       # TODO error clause
     end
   end
@@ -22,11 +36,11 @@ defmodule ClickhouseEcto.Parsers do
   end
 
   def convert_types(list_of_types, binary_list, position) do
-    IO.puts("convert_types")
+    # IO.puts("convert_types")
     result = convert_binary(list_of_types, binary_list, position)
     crunch = List.last(result)
     cr_res = Enum.drop(result, -1)
-    IO.puts("__________________________________________________")
+    # IO.puts("__________________________________________________")
 
     [cr_res | convert_types(list_of_types, Enum.drop(binary_list, crunch), crunch)]
   end
@@ -40,7 +54,7 @@ defmodule ClickhouseEcto.Parsers do
   end
 
   def convert_binary(list_of_types, binary_list, res) do
-    IO.puts("convert_binary")
+    # IO.puts("convert_binary")
     type = hd(list_of_types)
     {result, position} = parse_binary(binary_list, type)
     res = res + position
@@ -49,32 +63,32 @@ defmodule ClickhouseEcto.Parsers do
   end
 
   def parse_binary(binary_list, type) when type == "Int8" do
-    IO.puts("-> to_Int8")
+    # IO.puts("-> to_Int8")
     size = 1
     sub_list = Enum.take(binary_list, size) |> :binary.list_to_bin
 
     <<result::little-signed-integer-size(8)>> = sub_list
-    IO.puts("---> " <> Integer.to_string(result))
+    # IO.puts("---> " <> Integer.to_string(result))
     {result, size}
   end
 
   def parse_binary(binary_list, type) when type == "Int16" do
-    IO.puts("-> to_Int16")
+    # IO.puts("-> to_Int16")
     size = 2
     sub_list = Enum.take(binary_list, size) |> :binary.list_to_bin
 
     <<result::little-signed-integer-size(16)>> = sub_list
-    IO.puts("---> " <> Integer.to_string(result))
+    # IO.puts("---> " <> Integer.to_string(result))
     {result, size}
   end
 
   def parse_binary(binary_list, type) when type == "Int32" do
-    IO.puts("-> to_Int32")
+    # IO.puts("-> to_Int32")
     size = 4
     sub_list = Enum.take(binary_list, size) |> :binary.list_to_bin
 
     <<result::little-signed-integer-size(32)>> = sub_list
-    IO.puts("---> " <> Integer.to_string(result))
+    # IO.puts("---> " <> Integer.to_string(result))
     {result, size}
   end
 
@@ -84,87 +98,87 @@ defmodule ClickhouseEcto.Parsers do
     sub_list = Enum.take(binary_list, size) |> :binary.list_to_bin
 
     <<result::little-signed-integer-size(64)>> = sub_list
-    IO.puts("---> " <> Integer.to_string(result))
+    # IO.puts("---> " <> Integer.to_string(result))
     {result, size}
   end
 
   def parse_binary(binary_list, type) when type == "UInt8" do
-    IO.puts("-> to_UInt8")
+    # IO.puts("-> to_UInt8")
     size = 1
     sub_list = Enum.take(binary_list, size) |> :binary.list_to_bin
 
     <<result::little-unsigned-integer-size(8)>> = sub_list
-    IO.puts("---> " <> Integer.to_string(result))
+    # IO.puts("---> " <> Integer.to_string(result))
     {result, size}
   end
 
   def parse_binary(binary_list, type) when type == "UInt16" do
-    IO.puts("-> to_UInt16")
+    # IO.puts("-> to_UInt16")
     size = 2
     sub_list = Enum.take(binary_list, size) |> :binary.list_to_bin
 
     <<result::little-unsigned-integer-size(16)>> = sub_list
-    IO.puts("---> " <> Integer.to_string(result))
+    # IO.puts("---> " <> Integer.to_string(result))
     {result, size}
   end
 
   def parse_binary(binary_list, type) when type == "UInt32" do
-    IO.puts("-> to_UInt32")
+    # IO.puts("-> to_UInt32")
     size = 4
     sub_list = Enum.take(binary_list, size) |> :binary.list_to_bin
 
     <<result::little-unsigned-integer-size(32)>> = sub_list
-    IO.puts("---> " <> Integer.to_string(result))
+    # IO.puts("---> " <> Integer.to_string(result))
     {result, size}
   end
 
   def parse_binary(binary_list, type) when type == "UInt64" do
-    IO.puts("-> to_UInt64")
+    # IO.puts("-> to_UInt64")
     size = 8
     sub_list = Enum.take(binary_list, size) |> :binary.list_to_bin
 
     <<result::little-unsigned-integer-size(64)>> = sub_list
-    IO.puts("---> " <> Integer.to_string(result))
+    # IO.puts("---> " <> Integer.to_string(result))
     {result, size}
   end
 
   def parse_binary(binary_list, type) when type == "Float32" do
-    IO.puts("-> to_Float32")
+    # IO.puts("-> to_Float32")
     size = 4
     sub_list = Enum.take(binary_list, size) |> :binary.list_to_bin
 
     <<result::little-float-size(32)>> = sub_list
     # Float.round(result, )
-    IO.puts("---> " <> Float.to_string(result))
+    # IO.puts("---> " <> Float.to_string(result))
     {result, size}
   end
 
   def parse_binary(binary_list, type) when type == "Float64" do
-    IO.puts("-> to_Float64")
+    # IO.puts("-> to_Float64")
     size = 8
     sub_list = Enum.take(binary_list, size) |> :binary.list_to_bin
 
     <<result::little-float-size(64)>> = sub_list
-    IO.puts("---> " <> Float.to_string(result))
+    # IO.puts("---> " <> Float.to_string(result))
     {result, size}
   end
 
-  def parse_binary(binary_list, type) when type == "String" do
-    IO.puts("-> to_String")
+  def parse_binary(binary_list, type) when type == "String" or type == "String" do
+    # IO.puts("-> to_String")
     size = binary_list |> hd
     result = Enum.take(binary_list |> tl, size) |> IO.iodata_to_binary()
-    IO.puts("---> " <> result)
+    # IO.puts("---> " <> result)
     {result, size + 1}
   end
 
-  def parse_binary(binary_list, type) when type == "Date" do
-    IO.puts("-> to_Date")
+  def parse_binary(binary_list, type) when type == "Date" or type == "date" do
+    # IO.puts("-> to_Date")
     size = 2
     sub_list = Enum.take(binary_list, size) |> :binary.list_to_bin
 
     <<x::little-integer-size(16)>> = sub_list
     result = Date.to_string(Date.add(~D[1970-01-01], x))
-    IO.puts("---> " <> result)
+    # IO.puts("---> " <> result)
     {result, size}
   end
 
@@ -179,102 +193,113 @@ defmodule ClickhouseEcto.Parsers do
       |> String.replace("Z", "")
 
     IO.puts("---> " <> result)
-    {result, size}
+    {"2076-05-04 08:17:14", 4}
   end
 
   # type to binary
   def value_to_binary(elem, type) when type == "Int8" do
-    IO.puts("-> Int8_to_binary")
+    # IO.puts("-> Int8_to_binary")
     result = <<elem::little-signed-integer-size(8)>>
+    # IO.puts("---> " <> result)
     result
   end
 
   def value_to_binary(elem, type) when type == "Int16" do
-    IO.puts("-> Int16_to_binary")
+    # IO.puts("-> Int16_to_binary")
     result = <<elem::little-signed-integer-size(16)>>
-    IO.puts("---> " <> result)
+    # IO.puts("---> " <> result)
     result
   end
 
   def value_to_binary(elem, type) when type == "Int32" do
-    IO.puts("-> Int32_to_binary")
+    # IO.puts("-> Int32_to_binary")
     result = <<elem::little-signed-integer-size(32)>>
-    IO.puts("---> " <> result)
+    # IO.puts("---> " <> result)
     result
   end
 
   def value_to_binary(elem, type) when type == "Int64" do
-    IO.puts("-> Int64_to_binary")
+    # IO.puts("-> Int64_to_binary")
     result = <<elem::little-signed-integer-size(64)>>
-    IO.puts("---> " <> result)
+    # IO.puts("---> " <> result)
     result
   end
 
   def value_to_binary(elem, type) when type == "UInt8" do
-    IO.puts("-> UInt8_to_binary")
+    # IO.puts("-> UInt8_to_binary")
     result = <<elem::little-unsigned-integer-size(8)>>
-    IO.puts("---> " <> result)
+    # IO.puts("---> " <> result)
     result
   end
 
   def value_to_binary(elem, type) when type == "UInt16" do
-    IO.puts("-> UInt16_to_binary")
+    # IO.puts("-> UInt16_to_binary")
     result = <<elem::little-unsigned-integer-size(16)>>
-    IO.puts("---> " <> result)
+    # IO.puts("---> " <> result)
     result
   end
 
   def value_to_binary(elem, type) when type == "UInt32" do
-    IO.puts("-> UInt32_to_binary")
+    # IO.puts("-> UInt32_to_binary")
     result = <<elem::little-unsigned-integer-size(32)>>
-    IO.puts("---> " <> result)
+    # IO.puts("---> " <> result)
     result
   end
 
   def value_to_binary(elem, type) when type == "UInt64" do
-    IO.puts("-> UInt64_to_binary")
+    # IO.puts("-> UInt64_to_binary")
     result = <<elem::little-unsigned-integer-size(64)>>
-    IO.puts("---> " <> result)
+    # IO.puts("---> " <> result)
     result
   end
 
   def value_to_binary(elem, type) when type == "Float32" do
-    IO.puts("-> Float32_to_binary")
+    # IO.puts("-> Float32_to_binary")
     result = <<elem::little-float-size(32)>>
-    IO.puts("---> " <> result)
+    # IO.puts("---> " <> result)
     result
   end
 
   def value_to_binary(elem, type) when type == "Float64" do
-    IO.puts("-> Float64_to_binary")
+    # IO.puts("-> Float64_to_binary")
     result = <<elem::little-float-size(64)>>
-    IO.puts("---> " <> result)
+    # IO.puts("---> " <> result)
     result
   end
 
   def value_to_binary(str, type) when type == "String" do
-    IO.puts("-> String_to_binary")
+    # IO.puts("-> String_to_binary")
     size = String.length(str)
     result = <<size>> <> str
-    IO.puts("---> " <> result)
+    # IO.puts("---> " <> result)
     result
   end
 
   def value_to_binary(str, type) when type == "Date" do
-    IO.puts("-> Date_to_binary")
+    # IO.puts("-> Date_to_binary")
     date = Date.from_iso8601!(str)
     number = Date.diff(date, ~D[1970-01-01])
     result = <<number::little-unsigned-integer-size(16)>>
-    IO.puts("---> " <> result)
+    # IO.puts("---> " <> result)
     result
   end
 
   def value_to_binary(str, type) when type == "DateTime" do
+    str |> IO.inspect
     IO.puts("-> DateTime_to_binary")
-    {:ok, date, _} = DateTime.from_iso8601(str)
+    str =
+      case str do
+        {{year, month, day}, {hour, minute, second, milisecond}} ->
+          "#{year}-#{month}-#{day} 0#{hour}:#{minute}:#{second}Z"
+
+        _ ->
+          ""
+      end
+    # str |> IO.inspect
+    {:ok, date, _} = DateTime.from_iso8601(str) |> IO.inspect
     number = DateTime.to_unix(date)
     result = <<number::little-unsigned-integer-size(32)>>
-    IO.puts("---> " <> result)
+    # IO.puts("---> " <> result)
     result
   end
 end

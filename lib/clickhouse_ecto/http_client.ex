@@ -30,11 +30,13 @@ defmodule ClickhouseEcto.HTTPClient do
             case command do
               :selected ->
                 # FIXME insert database here
-                table = parse_table(query_normalized)
+                {fields ,table} = parse_table(query_normalized) #|> IO.inspect
+                query_normalized #|> IO.inspect
+                table  #|> IO.inspect
                 desc = MachineGun.request!(:post, base_address,
-                "DESCRIBE TABLE "<>  table <> "FORMAT JSON", [], %{})
+                "DESCRIBE TABLE "<>  Enum.join(table, ",") <> "FORMAT JSON", [], %{})
 
-                {type, name} = Parsers.parse_types(desc.body) |> Enum.unzip
+                {type, name} = Parsers.parse_types(desc.body, fields) |> Enum.unzip
                 columns = name
                 rows = Parsers.row_binary_parser(resp.body, type)
                 # JSON REALISATION
@@ -79,8 +81,19 @@ defmodule ClickhouseEcto.HTTPClient do
   defp parse_table(query) do
     # here need to parse query to extract name of table
     # name table should be between SELECT FROM ... WHERE/GROUP BY or nothing
-    result = Regex.split(~r/(FROM|WHERE|GROUP BY|FORMAT) */, query)
-    Enum.drop(result, 1) |> hd
+    result = Regex.split(~r/(SELECT|FROM|WHERE|GROUP BY|AS|FORMAT) */, query)
+
+    tables = Enum.at(result, 2) |> IO.inspect
+
+
+    fields = Enum.at(result, 1) |> IO.inspect
+
+    intersperse_tables = Regex.scan(~r/\"[A=Za-z0-9_]*\"/, tables)  |> List.flatten
+
+    IO.puts("FIELDS *** ")
+    intersperse_fields = Regex.scan(~r/\"[A=Za-z0-9_]*\"/, fields)  |> IO.inspect |> List.flatten
+
+    {intersperse_fields, intersperse_tables}
   end
 
   defp query_with_format(query), do: query <> " FORMAT RowBinary"

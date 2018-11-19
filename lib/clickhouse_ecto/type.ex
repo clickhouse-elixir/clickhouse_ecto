@@ -57,9 +57,11 @@ defmodule ClickhouseEcto.Type do
     {:ok, {date, {h, m, s, 0}}}
   end
 
-  def decode(value, type)
-  when type in [:date] and is_binary(value) do
-    case value do
+  def decode(bin_value, type)
+  when type in [:date] and is_binary(bin_value) do
+    :binary.bin_to_list(bin_value) |> IO.inspect(limit: 70)
+    # <<value::little-integer-size(16)>> = bin_value
+    case bin_value do
       @empty_clickhouse_date ->
         Ecto.Date.cast!(@unix_default_time)
       val ->
