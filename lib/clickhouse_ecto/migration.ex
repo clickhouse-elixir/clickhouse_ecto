@@ -110,12 +110,12 @@ defmodule ClickhouseEcto.Migration do
   end
 
   defp column_change(table, {:modify, name, %Reference{} = ref, opts}) do
-    [quote_alter([" ALTER COLUMN ", quote_name(name), ?\s, modify_null(name, opts)], table),
+    [quote_alter([" MODIFY COLUMN ", quote_name(name), ?\s, modify_null(name, opts)], table),
      modify_default(name, ref.type, opts, table, name)]
   end
 
   defp column_change(table, {:modify, name, type, opts}) do
-    [quote_alter([" ALTER COLUMN ", quote_name(name), ?\s, column_type(type, opts),
+    [quote_alter([" MODIFY COLUMN ", quote_name(name), ?\s, column_type(type, opts),
      modify_null(name, opts)], table), modify_default(name, type, opts, table, name)]
   end
 
