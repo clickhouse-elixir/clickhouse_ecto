@@ -71,7 +71,20 @@ defmodule ClickhouseEcto.QueryString do
     end)]
   end
 
-  def on_join_expr({:==, _, [{{_, _, [_, column]}, _, _}, _]}) do
+  def on_join_expr({_, _,[head | tail]}) do
+    retorno = [on_join_expr(head) | on_join_expr(tail)]
+    retorno |> Enum.uniq  |> Enum.join(",")
+  end
+
+  def on_join_expr([head | tail]) do
+    [on_join_expr(head) | tail]
+  end
+
+  def on_join_expr({{:., [], [{:&, [], _}, column]}, [], []}) when is_atom(column) do
+    column |> Atom.to_string()
+  end
+
+  def on_join_expr({:==, _, [{{_, _, [_, column]}, _, _}, _]}) when is_atom(column) do
     column |> Atom.to_string()
   end
 
