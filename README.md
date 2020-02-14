@@ -33,20 +33,6 @@ config :example_app, ExampleApp.ClickHouseRepo,
        pool_size: 30
 ```
 
-Do not forget to add :clickhouse_ecto and :clickhousex to your
-applications:
-
-```elixir
-  def application do
-    [
-      mod: {ExampleApp, []},
-      applications: [
-        :clickhousex, :clickhouse_ecto
-      ]
-    ]
-  end
-```
-
 ## Examples
 
 Example of Ecto model:
