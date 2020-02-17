@@ -104,7 +104,7 @@ defmodule ClickhouseEcto.Connection do
     end)
   end
 
-  def to_constraints(error), do: []
+  def to_constraints(_error), do: []
 
   @doc """
   Returns a stream that prepares and executes the given query with `DBConnection`.

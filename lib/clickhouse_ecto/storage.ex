@@ -21,9 +21,6 @@ defmodule ClickhouseEcto.Storage do
     end
   end
 
-  defp concat_if(content, nil, _fun), do: content
-  defp concat_if(content, value, fun), do: content <> " " <> fun.(value)
-
   @doc false
   def storage_down(opts) do
     database =

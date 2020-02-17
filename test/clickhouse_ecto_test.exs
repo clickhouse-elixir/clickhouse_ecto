@@ -41,12 +41,14 @@ defmodule ClickhouseEctoTest do
     assert all(query) == ~s{SELECT P0."x" FROM "Posts" AS P0}
 
     # FIXME
-    #     query = "0posts" |> select([:x]) |> normalize
-    #     assert all(query) == ~s{SELECT t0."x" FROM "0posts" AS t0}
+    # query = "0posts" |> select([:x]) |> normalize
+    # assert all(query) == ~s{SELECT t0."x" FROM "0posts" AS t0}
 
-    #     assert_raise Ecto.QueryError, ~r/MySQL does not support selecting all fields from "posts" without a schema/, fn ->
-    #       all from(p in "posts", select: p) |> normalize()
-    #     end
+    # assert_raise Ecto.QueryError,
+    #              ~r/MySQL does not support selecting all fields from "posts" without a schema/,
+    #              fn ->
+    #                all(from(p in "posts", select: p) |> normalize())
+    #              end
   end
 
   test "from with subquery" do

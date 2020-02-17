@@ -42,7 +42,7 @@ defmodule ClickhouseEcto.Query do
           on_conflict :: Ecto.Adapter.on_conflict(),
           returning :: [atom]
         ) :: String.t()
-  def insert(prefix, table, header, rows, on_conflict, returning) do
+  def insert(prefix, table, header, rows, _on_conflict, _returning) do
     included_fields =
       header
       |> Enum.filter(fn value -> Enum.any?(rows, fn row -> value in row end) end)
@@ -51,10 +51,8 @@ defmodule ClickhouseEcto.Query do
       Enum.map(rows, fn row ->
         row
         |> Enum.zip(header)
-        |> Enum.filter_map(
-          fn {_row, col} -> col in included_fields end,
-          fn {row, _col} -> row end
-        )
+        |> Enum.filter(fn {_row, col} -> col in included_fields end)
+        |> Enum.map(fn {row, _col} -> row end)
       end)
 
     fields = intersperse_map(included_fields, ?,, &quote_name/1)
@@ -100,7 +98,7 @@ defmodule ClickhouseEcto.Query do
           filters :: [atom],
           returning :: [atom]
         ) :: String.t()
-  def update(prefix, table, fields, filters, returning) do
+  def update(_prefix, _table, _fields, _filters, _returning) do
     raise "UPDATE is not supported"
   end
 
@@ -109,23 +107,23 @@ defmodule ClickhouseEcto.Query do
   """
   @spec delete(prefix :: String.t(), table :: String.t(), filters :: [atom], returning :: [atom]) ::
           String.t()
-  def delete(prefix, table, filters, returning) do
+  def delete(_prefix, _table, _filters, _returning) do
     raise "DELETE is not supported"
   end
 
   @doc """
   Receives a query and values to update and must return an UPDATE query.
   """
-  @spec update_all(query :: Ecto.Query.t()) :: String.t()
-  def update_all(%{from: from} = query, prefix \\ nil) do
+  @spec update_all(query :: Ecto.Query.t()) :: no_return
+  def update_all(%{from: _from} = _query, _prefix \\ nil) do
     raise "UPDATE is not supported"
   end
 
   @doc """
   Clickhouse doesn't support delete
   """
-  @spec delete_all(query :: Ecto.Query.t()) :: String.t()
-  def delete_all(%{from: from} = query) do
+  @spec delete_all(query :: Ecto.Query.t()) :: no_return
+  def delete_all(%{from: _from} = _query) do
     raise "DELETE is not supported"
   end
 end
