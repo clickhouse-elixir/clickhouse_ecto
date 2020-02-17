@@ -17,7 +17,7 @@ defmodule ClickhouseEctoTest do
   end
 
   defp normalize(query, operation \\ :all, counter \\ 0) do
-    {query, _params, _key} = Ecto.Query.Planner.prepare(query, operation, ClickhouseEcto, counter)
+    {query, _params, _key} = Ecto.Query.Planner.plan(query, operation, ClickhouseEcto)
     {query, _} = Ecto.Query.Planner.normalize(query, operation, ClickhouseEcto, counter)
     query
   end
@@ -40,15 +40,8 @@ defmodule ClickhouseEctoTest do
     query = "Posts" |> select([:x]) |> normalize
     assert all(query) == ~s{SELECT P0."x" FROM "Posts" AS P0}
 
-    # FIXME
-    # query = "0posts" |> select([:x]) |> normalize
-    # assert all(query) == ~s{SELECT t0."x" FROM "0posts" AS t0}
-
-    # assert_raise Ecto.QueryError,
-    #              ~r/MySQL does not support selecting all fields from "posts" without a schema/,
-    #              fn ->
-    #                all(from(p in "posts", select: p) |> normalize())
-    #              end
+    query = "0posts" |> select([:x]) |> normalize
+    assert all(query) == ~s{SELECT t0."x" FROM "0posts" AS t0}
   end
 
   test "from with subquery" do
@@ -240,13 +233,13 @@ defmodule ClickhouseEctoTest do
 
   test "in expression" do
     query = Schema |> select([e], 1 in []) |> normalize
-    assert all(query) == ~s{SELECT 0=1 FROM "schema" AS s0}
+    assert all(query) == ~s{SELECT 0 FROM "schema" AS s0}
 
     query = Schema |> select([e], 1 in [1, e.x, 3]) |> normalize
     assert all(query) == ~s{SELECT 1 IN (1,s0."x",3) FROM "schema" AS s0}
 
     query = Schema |> select([e], 1 in ^[]) |> normalize
-    assert all(query) == ~s{SELECT 0=1 FROM "schema" AS s0}
+    assert all(query) == ~s{SELECT 0 FROM "schema" AS s0}
 
     query = Schema |> select([e], 1 in ^[1, 2, 3]) |> normalize
     assert all(query) == ~s{SELECT 1 IN (?,?,?) FROM "schema" AS s0}

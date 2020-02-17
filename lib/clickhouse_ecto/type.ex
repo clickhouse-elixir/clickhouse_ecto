@@ -58,16 +58,13 @@ defmodule ClickhouseEcto.Type do
     {:ok, {date, {h, m, s, 0}}}
   end
 
-  def decode(value, type)
-      when type in [:date] and is_binary(value) do
-    case value do
-      @empty_clickhouse_date ->
-        Ecto.Date.cast!(@unix_default_time)
+  def decode(@empty_clickhouse_date, :date), do: decode(@unix_default_time, :date)
 
-      val ->
-        Ecto.Date.cast!(val)
+  def decode(value, :date)
+      when is_binary(value) do
+    with {:ok, val} <- Ecto.Type.cast(:naive_datetime_usec, value) do
+      Ecto.Type.dump(:naive_datetime_usec, val)
     end
-    |> Ecto.Date.dump()
   end
 
   def decode(value, _type) do
