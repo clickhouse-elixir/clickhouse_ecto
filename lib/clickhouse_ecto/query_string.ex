@@ -1,26 +1,24 @@
 defmodule ClickhouseEcto.QueryString do
-
   alias Ecto.Query
   alias Ecto.SubQuery
   alias Ecto.Query.{BooleanExpr, JoinExpr, QueryExpr}
   alias ClickhouseEcto.Connection
   alias ClickhouseEcto.Helpers
 
-  binary_ops =
-    [
-      ==: " = ",
-      !=: " != ",
-      <=: " <= ",
-      >=: " >= ",
-      <: " < ",
-      >: " > ",
-      and: " AND ",
-      or: " OR ",
-      ilike: " ILIKE ",
-      like: " LIKE ",
-      in: " IN ",
-      is_nil: " WHERE "
-    ]
+  binary_ops = [
+    ==: " = ",
+    !=: " != ",
+    <=: " <= ",
+    >=: " >= ",
+    <: " < ",
+    >: " > ",
+    and: " AND ",
+    or: " OR ",
+    ilike: " ILIKE ",
+    like: " LIKE ",
+    in: " IN ",
+    is_nil: " WHERE "
+  ]
 
   @binary_ops Keyword.keys(binary_ops)
 
@@ -35,10 +33,12 @@ defmodule ClickhouseEcto.QueryString do
   end
 
   def select_fields([], _sources, _query), do: "'TRUE'"
+
   def select_fields(fields, sources, query) do
     Helpers.intersperse_map(fields, ", ", fn
       {key, value} ->
         [expr(value, sources, query), " AS " | Helpers.quote_name(key)]
+
       value ->
         expr(value, sources, query)
     end)
@@ -48,9 +48,12 @@ defmodule ClickhouseEcto.QueryString do
   def distinct(%QueryExpr{expr: []}, _, _), do: {[], []}
   def distinct(%QueryExpr{expr: true}, _, _), do: {" DISTINCT", []}
   def distinct(%QueryExpr{expr: false}, _, _), do: {[], []}
+
   def distinct(%QueryExpr{expr: exprs}, sources, query) do
-    Helpers.error!(query,
-      "DISTINCT ON is not supported! Use `distinct: true`, for ex. `from rec in MyModel, distinct: true, select: rec.my_field`")
+    Helpers.error!(
+      query,
+      "DISTINCT ON is not supported! Use `distinct: true`, for ex. `from rec in MyModel, distinct: true, select: rec.my_field`"
+    )
   end
 
   def from(%{from: from} = query, sources) do
@@ -63,17 +66,21 @@ defmodule ClickhouseEcto.QueryString do
   end
 
   def join(%Query{joins: []}, _sources), do: []
+
   def join(%Query{joins: joins} = query, sources) do
-    [?\s | Helpers.intersperse_map(joins, ?\s, fn
-      %JoinExpr{qual: qual, ix: ix, source: source, on: %QueryExpr{expr: on_expr}} ->
-        {join, _name} = Helpers.get_source(query, sources, ix, source)
-        ["ANY", join_qual(qual), join, " USING ", on_join_expr(on_expr)]
-    end)]
+    [
+      ?\s
+      | Helpers.intersperse_map(joins, ?\s, fn
+          %JoinExpr{qual: qual, ix: ix, source: source, on: %QueryExpr{expr: on_expr}} ->
+            {join, _name} = Helpers.get_source(query, sources, ix, source)
+            ["ANY", join_qual(qual), join, " USING ", on_join_expr(on_expr)]
+        end)
+    ]
   end
 
-  def on_join_expr({_, _,[head | tail]}) do
+  def on_join_expr({_, _, [head | tail]}) do
     retorno = [on_join_expr(head) | on_join_expr(tail)]
-    retorno |> Enum.uniq  |> Enum.join(",")
+    retorno |> Enum.uniq() |> Enum.join(",")
   end
 
   def on_join_expr([head | tail]) do
@@ -89,7 +96,7 @@ defmodule ClickhouseEcto.QueryString do
   end
 
   def join_qual(:inner), do: " INNER JOIN "
-  def join_qual(:left),  do: " LEFT OUTER JOIN "
+  def join_qual(:left), do: " LEFT OUTER JOIN "
 
   def where(%Query{wheres: wheres} = query, sources) do
     boolean(" WHERE ", wheres, sources, query)
@@ -100,53 +107,73 @@ defmodule ClickhouseEcto.QueryString do
   end
 
   def group_by(%Query{group_bys: []}, _sources), do: []
+
   def group_by(%Query{group_bys: group_bys} = query, sources) do
-    [" GROUP BY " |
-     Helpers.intersperse_map(group_bys, ", ", fn
-       %QueryExpr{expr: expr} ->
-         Helpers.intersperse_map(expr, ", ", &expr(&1, sources, query))
-     end)]
+    [
+      " GROUP BY "
+      | Helpers.intersperse_map(group_bys, ", ", fn
+          %QueryExpr{expr: expr} ->
+            Helpers.intersperse_map(expr, ", ", &expr(&1, sources, query))
+        end)
+    ]
   end
 
   def order_by(%Query{order_bys: []}, _distinct, _sources), do: []
+
   def order_by(%Query{order_bys: order_bys} = query, distinct, sources) do
     order_bys = Enum.flat_map(order_bys, & &1.expr)
-    [" ORDER BY " |
-     Helpers.intersperse_map(distinct ++ order_bys, ", ", &order_by_expr(&1, sources, query))]
+
+    [
+      " ORDER BY "
+      | Helpers.intersperse_map(distinct ++ order_bys, ", ", &order_by_expr(&1, sources, query))
+    ]
   end
 
   def order_by_expr({dir, expr}, sources, query) do
     str = expr(expr, sources, query)
+
     case dir do
-      :asc  -> str
+      :asc -> str
       :desc -> [str | " DESC"]
     end
   end
 
   def limit(%Query{offset: nil, limit: nil}, _sources), do: []
+
   def limit(%Query{offset: nil, limit: %QueryExpr{expr: expr}} = query, sources) do
     [" LIMIT ", expr(expr, sources, query)]
   end
-  def limit(%Query{offset: %QueryExpr{expr: expr_offset}, limit: %QueryExpr{expr: expr_limit}} = query, sources) do
+
+  def limit(
+        %Query{offset: %QueryExpr{expr: expr_offset}, limit: %QueryExpr{expr: expr_limit}} =
+          query,
+        sources
+      ) do
     [" LIMIT ", expr(expr_offset, sources, query), ", ", expr(expr_limit, sources, query)]
   end
 
   def boolean(_name, [], _sources, _query), do: []
+
   def boolean(name, [%{expr: expr, op: op} | query_exprs], sources, query) do
-    [name |
-     Enum.reduce(query_exprs, {op, paren_expr(expr, sources, query)}, fn
-       %BooleanExpr{expr: expr, op: op}, {op, acc} ->
-         {op, [acc, operator_to_boolean(op), paren_expr(expr, sources, query)]}
-       %BooleanExpr{expr: expr, op: op}, {_, acc} ->
-         {op, [?(, acc, ?), operator_to_boolean(op), paren_expr(expr, sources, query)]}
-     end) |> elem(1)]
+    [
+      name
+      | Enum.reduce(query_exprs, {op, paren_expr(expr, sources, query)}, fn
+          %BooleanExpr{expr: expr, op: op}, {op, acc} ->
+            {op, [acc, operator_to_boolean(op), paren_expr(expr, sources, query)]}
+
+          %BooleanExpr{expr: expr, op: op}, {_, acc} ->
+            {op, [?(, acc, ?), operator_to_boolean(op), paren_expr(expr, sources, query)]}
+        end)
+        |> elem(1)
+    ]
   end
 
   def operator_to_boolean(:and), do: " AND "
   def operator_to_boolean(:or), do: " OR "
 
-  def paren_expr(false, _sources, _query),  do: "(0=1)"
-  def paren_expr(true, _sources, _query),   do: "(1=1)"
+  def paren_expr(false, _sources, _query), do: "(0=1)"
+  def paren_expr(true, _sources, _query), do: "(1=1)"
+
   def paren_expr(expr, sources, query) do
     [?(, expr(expr, sources, query), ?)]
   end
@@ -165,12 +192,17 @@ defmodule ClickhouseEcto.QueryString do
 
   def expr({:&, _, [idx, fields, _counter]}, sources, query) do
     {_, name, schema} = elem(sources, idx)
+
     if is_nil(schema) and is_nil(fields) do
-      Helpers.error!(query, "ClickHouse requires a schema module when using selector " <>
-        "#{inspect name} but none was given. " <>
-        "Please specify a schema or specify exactly which fields from " <>
-        "#{inspect name} you desire")
+      Helpers.error!(
+        query,
+        "ClickHouse requires a schema module when using selector " <>
+          "#{inspect(name)} but none was given. " <>
+          "Please specify a schema or specify exactly which fields from " <>
+          "#{inspect(name)} you desire"
+      )
     end
+
     Helpers.intersperse_map(fields, ", ", &[name, ?. | Helpers.quote_name(&1)])
   end
 
@@ -204,6 +236,7 @@ defmodule ClickhouseEcto.QueryString do
     case expr do
       {fun, _, _} when fun in @binary_ops ->
         ["NOT (", expr(expr, sources, query), ?)]
+
       _ ->
         ["~(", expr(expr, sources, query), ?)]
     end
@@ -219,7 +252,7 @@ defmodule ClickhouseEcto.QueryString do
 
   def expr({:fragment, _, parts}, sources, query) do
     Enum.map(parts, fn
-      {:raw, part}  -> part
+      {:raw, part} -> part
       {:expr, expr} -> expr(expr, sources, query)
     end)
   end
@@ -235,6 +268,7 @@ defmodule ClickhouseEcto.QueryString do
       {:binary_op, op} ->
         [left, right] = args
         [op_to_binary(left, sources, query), op | op_to_binary(right, sources, query)]
+
       {:fun, fun} ->
         [fun, ?(, modifier, Helpers.intersperse_map(args, ", ", &expr(&1, sources, query)), ?)]
     end
@@ -257,8 +291,8 @@ defmodule ClickhouseEcto.QueryString do
     ["CAST(", expr(other, sources, query), " AS ", Helpers.ecto_to_db(type), ")"]
   end
 
-  def expr(nil, _sources, _query),   do: "NULL"
-  def expr(true, _sources, _query),  do: "1"
+  def expr(nil, _sources, _query), do: "NULL"
+  def expr(true, _sources, _query), do: "1"
   def expr(false, _sources, _query), do: "0"
 
   def expr(literal, _sources, _query) when is_binary(literal) do
@@ -285,7 +319,7 @@ defmodule ClickhouseEcto.QueryString do
     expr(expr, sources, query)
   end
 
-  def returning(returning), do: raise "RETURNING is not supported!"
+  def returning(returning), do: raise("RETURNING is not supported!")
 
   def create_names(%{prefix: prefix, sources: sources}) do
     create_names(prefix, sources, 0, tuple_size(sources)) |> List.to_tuple()
@@ -297,11 +331,14 @@ defmodule ClickhouseEcto.QueryString do
         {table, schema} ->
           name = [String.first(table) | Integer.to_string(pos)]
           {Helpers.quote_table(prefix, table), name, schema}
+
         {:fragment, _, _} ->
           {nil, [?f | Integer.to_string(pos)], nil}
+
         %Ecto.SubQuery{} ->
           {nil, [?s | Integer.to_string(pos)], nil}
       end
+
     [current | create_names(prefix, sources, pos + 1, limit)]
   end
 

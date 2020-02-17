@@ -10,9 +10,9 @@ defmodule ClickhouseEctoTest do
     use Ecto.Schema
 
     schema "schema" do
-      field :x, :integer
-      field :y, :integer
-      field :z, :integer
+      field(:x, :integer)
+      field(:y, :integer)
+      field(:z, :integer)
     end
   end
 
@@ -22,11 +22,10 @@ defmodule ClickhouseEctoTest do
     query
   end
 
-
-  defp all(query), do: query |> SQL.all |> IO.iodata_to_binary()
+  defp all(query), do: query |> SQL.all() |> IO.iodata_to_binary()
 
   defp insert(prefx, table, header, rows, on_conflict, returning) do
-    IO.iodata_to_binary SQL.insert(prefx, table, header, rows, on_conflict, returning)
+    IO.iodata_to_binary(SQL.insert(prefx, table, header, rows, on_conflict, returning))
   end
 
   test "from" do
@@ -41,21 +40,25 @@ defmodule ClickhouseEctoTest do
     query = "Posts" |> select([:x]) |> normalize
     assert all(query) == ~s{SELECT P0."x" FROM "Posts" AS P0}
 
-# FIXME
-#     query = "0posts" |> select([:x]) |> normalize
-#     assert all(query) == ~s{SELECT t0."x" FROM "0posts" AS t0}
+    # FIXME
+    #     query = "0posts" |> select([:x]) |> normalize
+    #     assert all(query) == ~s{SELECT t0."x" FROM "0posts" AS t0}
 
-#     assert_raise Ecto.QueryError, ~r/MySQL does not support selecting all fields from "posts" without a schema/, fn ->
-#       all from(p in "posts", select: p) |> normalize()
-#     end
+    #     assert_raise Ecto.QueryError, ~r/MySQL does not support selecting all fields from "posts" without a schema/, fn ->
+    #       all from(p in "posts", select: p) |> normalize()
+    #     end
   end
 
   test "from with subquery" do
     query = subquery("posts" |> select([r], %{x: r.x, y: r.y})) |> select([r], r.x) |> normalize
-    assert all(query) == ~s{SELECT s0."x" FROM (SELECT p0."x" AS "x", p0."y" AS "y" FROM "posts" AS p0) AS s0}
+
+    assert all(query) ==
+             ~s{SELECT s0."x" FROM (SELECT p0."x" AS "x", p0."y" AS "y" FROM "posts" AS p0) AS s0}
 
     query = subquery("posts" |> select([r], %{x: r.x, z: r.y})) |> select([r], r) |> normalize
-    assert all(query) == ~s{SELECT s0."x", s0."z" FROM (SELECT p0."x" AS "x", p0."y" AS "z" FROM "posts" AS p0) AS s0}
+
+    assert all(query) ==
+             ~s{SELECT s0."x", s0."z" FROM (SELECT p0."x" AS "x", p0."y" AS "z" FROM "posts" AS p0) AS s0}
   end
 
   test "select" do
@@ -89,16 +92,34 @@ defmodule ClickhouseEctoTest do
   end
 
   test "where" do
-    query = Schema |> where([r], r.x == 42) |> where([r], r.y != 43) |> select([r], r.x) |> normalize
-    assert all(query) == ~s{SELECT s0."x" FROM "schema" AS s0 WHERE (s0."x" = 42) AND (s0."y" != 43)}
+    query =
+      Schema |> where([r], r.x == 42) |> where([r], r.y != 43) |> select([r], r.x) |> normalize
+
+    assert all(query) ==
+             ~s{SELECT s0."x" FROM "schema" AS s0 WHERE (s0."x" = 42) AND (s0."y" != 43)}
   end
 
   test "or_where" do
-    query = Schema |> or_where([r], r.x == 42) |> or_where([r], r.y != 43) |> select([r], r.x) |> normalize
-    assert all(query) == ~s{SELECT s0."x" FROM "schema" AS s0 WHERE (s0."x" = 42) OR (s0."y" != 43)}
+    query =
+      Schema
+      |> or_where([r], r.x == 42)
+      |> or_where([r], r.y != 43)
+      |> select([r], r.x)
+      |> normalize
 
-    query = Schema |> or_where([r], r.x == 42) |> or_where([r], r.y != 43) |> where([r], r.z == 44) |> select([r], r.x) |> normalize
-    assert all(query) == ~s{SELECT s0."x" FROM "schema" AS s0 WHERE ((s0."x" = 42) OR (s0."y" != 43)) AND (s0."z" = 44)}
+    assert all(query) ==
+             ~s{SELECT s0."x" FROM "schema" AS s0 WHERE (s0."x" = 42) OR (s0."y" != 43)}
+
+    query =
+      Schema
+      |> or_where([r], r.x == 42)
+      |> or_where([r], r.y != 43)
+      |> where([r], r.z == 44)
+      |> select([r], r.x)
+      |> normalize
+
+    assert all(query) ==
+             ~s{SELECT s0."x" FROM "schema" AS s0 WHERE ((s0."x" = 42) OR (s0."y" != 43)) AND (s0."z" = 44)}
   end
 
   test "order by" do
@@ -108,7 +129,7 @@ defmodule ClickhouseEctoTest do
     query = Schema |> order_by([r], [r.x, r.y]) |> select([r], r.x) |> normalize
     assert all(query) == ~s{SELECT s0."x" FROM "schema" AS s0 ORDER BY s0."x", s0."y"}
 
-    query = Schema |> order_by([r], [asc: r.x, desc: r.y]) |> select([r], r.x) |> normalize
+    query = Schema |> order_by([r], asc: r.x, desc: r.y) |> select([r], r.x) |> normalize
     assert all(query) == ~s{SELECT s0."x" FROM "schema" AS s0 ORDER BY s0."x", s0."y" DESC}
 
     query = Schema |> order_by([r], []) |> select([r], r.x) |> normalize
@@ -164,7 +185,9 @@ defmodule ClickhouseEctoTest do
     query = Schema |> select([r], fragment("lcase(?)", r.x)) |> normalize
     assert all(query) == ~s{SELECT lcase(s0."x") FROM "schema" AS s0}
 
-    query = Schema |> select([r], r.x) |> where([], fragment("? = \"query\\?\"", ^10)) |> normalize
+    query =
+      Schema |> select([r], r.x) |> where([], fragment("? = \"query\\?\"", ^10)) |> normalize
+
     assert all(query) == ~s{SELECT s0."x" FROM "schema" AS s0 WHERE (? = \"query?\")}
 
     value = 13
@@ -172,6 +195,7 @@ defmodule ClickhouseEctoTest do
     assert all(query) == ~s{SELECT lcase(s0."x", ?) FROM "schema" AS s0}
 
     query = Schema |> select([], fragment(title: 2)) |> normalize
+
     assert_raise Ecto.QueryError, fn ->
       all(query)
     end
@@ -195,7 +219,9 @@ defmodule ClickhouseEctoTest do
   end
 
   test "tagged type" do
-    query = Schema |> select([], type(^"601d74e4-a8d3-4b6e-8365-eddb4c893327", Ecto.UUID)) |> normalize
+    query =
+      Schema |> select([], type(^"601d74e4-a8d3-4b6e-8365-eddb4c893327", Ecto.UUID)) |> normalize
+
     assert all(query) == ~s{SELECT CAST(? AS FixedString(36)) FROM "schema" AS s0}
   end
 
@@ -206,7 +232,7 @@ defmodule ClickhouseEctoTest do
 
   test "nested expressions" do
     z = 123
-    query = from(r in Schema, []) |> select([r], r.x > 0 and (r.y > ^(-z)) or true) |> normalize
+    query = from(r in Schema, []) |> select([r], (r.x > 0 and r.y > ^(-z)) or true) |> normalize
     assert all(query) == ~s{SELECT ((s0."x" > 0) AND (s0."y" > ?)) OR 1 FROM "schema" AS s0}
   end
 
@@ -214,7 +240,7 @@ defmodule ClickhouseEctoTest do
     query = Schema |> select([e], 1 in []) |> normalize
     assert all(query) == ~s{SELECT 0=1 FROM "schema" AS s0}
 
-    query = Schema |> select([e], 1 in [1,e.x,3]) |> normalize
+    query = Schema |> select([e], 1 in [1, e.x, 3]) |> normalize
     assert all(query) == ~s{SELECT 1 IN (1,s0."x",3) FROM "schema" AS s0}
 
     query = Schema |> select([e], 1 in ^[]) |> normalize
@@ -230,23 +256,39 @@ defmodule ClickhouseEctoTest do
     assert all(query) == ~s{SELECT 1 = ANY(foo) FROM "schema" AS s0}
 
     query = Schema |> select([e], e.x == ^0 or e.x in ^[1, 2, 3] or e.x == ^4) |> normalize
-    assert all(query) == ~s{SELECT ((s0."x" = ?) OR (s0."x" IN (?,?,?))) OR (s0."x" = ?) FROM "schema" AS s0}
+
+    assert all(query) ==
+             ~s{SELECT ((s0."x" = ?) OR (s0."x" IN (?,?,?))) OR (s0."x" = ?) FROM "schema" AS s0}
   end
 
   test "having" do
     query = Schema |> having([p], p.x == p.x) |> select([p], p.x) |> normalize
     assert all(query) == ~s{SELECT s0."x" FROM "schema" AS s0 HAVING (s0."x" = s0."x")}
 
-    query = Schema |> having([p], p.x == p.x) |> having([p], p.y == p.y) |> select([p], [p.y, p.x]) |> normalize
-    assert all(query) == ~s{SELECT s0."y", s0."x" FROM "schema" AS s0 HAVING (s0."x" = s0."x") AND (s0."y" = s0."y")}
+    query =
+      Schema
+      |> having([p], p.x == p.x)
+      |> having([p], p.y == p.y)
+      |> select([p], [p.y, p.x])
+      |> normalize
+
+    assert all(query) ==
+             ~s{SELECT s0."y", s0."x" FROM "schema" AS s0 HAVING (s0."x" = s0."x") AND (s0."y" = s0."y")}
   end
 
   test "or_having" do
     query = Schema |> or_having([p], p.x == p.x) |> select([p], p.x) |> normalize
     assert all(query) == ~s{SELECT s0."x" FROM "schema" AS s0 HAVING (s0."x" = s0."x")}
 
-    query = Schema |> or_having([p], p.x == p.x) |> or_having([p], p.y == p.y) |> select([p], [p.y, p.x]) |> normalize
-    assert all(query) == ~s{SELECT s0."y", s0."x" FROM "schema" AS s0 HAVING (s0."x" = s0."x") OR (s0."y" = s0."y")}
+    query =
+      Schema
+      |> or_having([p], p.x == p.x)
+      |> or_having([p], p.y == p.y)
+      |> select([p], [p.y, p.x])
+      |> normalize
+
+    assert all(query) ==
+             ~s{SELECT s0."y", s0."x" FROM "schema" AS s0 HAVING (s0."x" = s0."x") OR (s0."y" = s0."y")}
   end
 
   test "group by" do
@@ -264,24 +306,25 @@ defmodule ClickhouseEctoTest do
   end
 
   test "interpolated values" do
-    query = Schema
-            |> select([m], {m.id, ^0})
-            |> where([], fragment("?", ^true))
-            |> where([], fragment("?", ^false))
-            |> having([], fragment("?", ^true))
-            |> having([], fragment("?", ^false))
-            |> group_by([], fragment("?", ^1))
-            |> group_by([], fragment("?", ^2))
-            |> order_by([], fragment("?", ^3))
-            |> order_by([], ^:x)
-            |> limit([], ^4)
-            |> offset([], ^5)
-            |> normalize
+    query =
+      Schema
+      |> select([m], {m.id, ^0})
+      |> where([], fragment("?", ^true))
+      |> where([], fragment("?", ^false))
+      |> having([], fragment("?", ^true))
+      |> having([], fragment("?", ^false))
+      |> group_by([], fragment("?", ^1))
+      |> group_by([], fragment("?", ^2))
+      |> order_by([], fragment("?", ^3))
+      |> order_by([], ^:x)
+      |> limit([], ^4)
+      |> offset([], ^5)
+      |> normalize
 
     result =
       ~s{SELECT s0."id", ? FROM "schema" AS s0 } <>
-      ~s{WHERE (?) AND (?) GROUP BY ?, ? HAVING (?) AND (?) } <>
-      ~s{ORDER BY ?, s0."x" LIMIT ?, ?}
+        ~s{WHERE (?) AND (?) GROUP BY ?, ? HAVING (?) AND (?) } <>
+        ~s{ORDER BY ?, s0."x" LIMIT ?, ?}
 
     assert all(query) == String.trim(result)
   end
