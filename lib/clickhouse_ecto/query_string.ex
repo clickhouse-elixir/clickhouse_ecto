@@ -273,6 +273,8 @@ defmodule ClickhouseEcto.QueryString do
     end
   end
 
+  def expr({:count, _, []}, _sources, _query), do: "count(*)"
+
   def expr(list, sources, query) when is_list(list) do
     ["ARRAY[", Helpers.intersperse_map(list, ?,, &expr(&1, sources, query)), ?]]
   end
