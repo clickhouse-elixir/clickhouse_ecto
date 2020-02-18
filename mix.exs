@@ -6,7 +6,7 @@ defmodule ClickhouseEcto.Mixfile do
       app: :clickhouse_ecto,
       version: "0.2.8",
       elixir: "~> 1.5",
-      start_permanent: Mix.env == :prod,
+      start_permanent: Mix.env() == :prod,
       deps: deps(),
       description: description(),
       package: package(),
@@ -26,7 +26,8 @@ defmodule ClickhouseEcto.Mixfile do
     [
       {:ecto, "~> 2.1"},
       {:clickhousex, "~> 0.4.0"},
-      {:ex_doc, "~> 0.19", only: :dev}
+      {:ex_doc, "~> 0.19", only: :dev},
+      {:db_connection, "~> 2.2.1", override: true}
     ]
   end
 

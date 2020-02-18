@@ -12,19 +12,19 @@ defmodule ClickhouseEcto do
 
   import ClickhouseEcto.Type, only: [encode: 2, decode: 2]
 
-  def autogenerate(:binary_id),       do: Ecto.UUID.generate()
-  def autogenerate(type),             do: super(type)
+  def autogenerate(:binary_id), do: Ecto.UUID.generate()
+  def autogenerate(type), do: super(type)
 
   def dumpers({:embed, _} = type, _), do: [&Ecto.Adapters.SQL.dump_embed(type, &1)]
-  def dumpers(:binary_id, _type),     do: []
-  def dumpers(:uuid, _type),          do: []
-  def dumpers(ecto_type, type),       do: [type, &(encode(&1, ecto_type))]
+  def dumpers(:binary_id, _type), do: []
+  def dumpers(:uuid, _type), do: []
+  def dumpers(ecto_type, type), do: [type, &encode(&1, ecto_type)]
 
   def loaders({:embed, _} = type, _), do: [&Ecto.Adapters.SQL.load_embed(type, &1)]
-  def loaders(ecto_type, type),       do: [&(decode(&1, ecto_type)), type]
+  def loaders(ecto_type, type), do: [&decode(&1, ecto_type), type]
 
   ## Migration
-  def supports_ddl_transaction?, do: Migration.supports_ddl_transaction?
+  def supports_ddl_transaction?, do: Migration.supports_ddl_transaction?()
 
   ## Storage
   def storage_up(opts), do: Storage.storage_up(opts)
