@@ -2,6 +2,8 @@ defmodule ClickhouseEcto.Connection do
   alias Clickhousex.Query
   alias ClickhouseEcto.Query, as: SQL
 
+  @behaviour Ecto.Adapters.SQL.Connection
+
   @typedoc "The prepared query which is an SQL command"
   @type prepared :: String.t()
 
@@ -11,6 +13,7 @@ defmodule ClickhouseEcto.Connection do
   @doc """
   Receives options and returns `DBConnection` supervisor child specification.
   """
+  @impl true
   @spec child_spec(options :: Keyword.t()) :: {module, Keyword.t()}
   def child_spec(opts) do
     DBConnection.child_spec(Clickhousex.Protocol, opts)
@@ -19,6 +22,7 @@ defmodule ClickhouseEcto.Connection do
   @doc """
   Prepares and executes the given query with `DBConnection`.
   """
+  @impl true
   @spec prepare_execute(
           connection :: DBConnection.t(),
           name :: String.t(),
@@ -49,6 +53,7 @@ defmodule ClickhouseEcto.Connection do
   @doc """
   Executes the given prepared query with `DBConnection`.
   """
+  @impl true
   @spec execute(
           connection :: DBConnection.t(),
           prepared_query :: prepared,
@@ -104,11 +109,10 @@ defmodule ClickhouseEcto.Connection do
     end)
   end
 
-  def to_constraints(_error), do: []
-
   @doc """
   Returns a stream that prepares and executes the given query with `DBConnection`.
   """
+  @impl true
   @spec stream(
           connection :: DBConnection.conn(),
           prepared_query :: prepared,
@@ -120,24 +124,51 @@ defmodule ClickhouseEcto.Connection do
     raise("not implemented")
   end
 
-  ## Queries
+  @impl true
   def all(query) do
     SQL.all(query)
   end
 
+  @impl true
   def update_all(query, prefix \\ nil), do: SQL.update_all(query, prefix)
-  @doc false
+
+  @impl true
   def delete_all(query), do: SQL.delete_all(query)
 
-  def insert(prefix, table, header, rows, on_conflict, returning),
-    do: SQL.insert(prefix, table, header, rows, on_conflict, returning)
+  @impl true
+  def insert(prefix, table, header, rows, on_conflict, returning) do
+    SQL.insert(prefix, table, header, rows, on_conflict, returning)
+  end
 
-  def update(prefix, table, fields, filters, returning),
-    do: SQL.update(prefix, table, fields, filters, returning)
+  @impl true
+  def update(prefix, table, fields, filters, returning) do
+    SQL.update(prefix, table, fields, filters, returning)
+  end
 
-  def delete(prefix, table, filters, returning),
-    do: SQL.delete(prefix, table, filters, returning)
+  @impl true
+  def delete(prefix, table, filters, returning) do
+    SQL.delete(prefix, table, filters, returning)
+  end
+
+  @impl true
+  def query(conn, sql, params, opts) do
+    Clickhousex.query(conn, sql, params, opts)
+  end
 
   ## Migration
+  @impl true
   def execute_ddl(command), do: ClickhouseEcto.Migration.execute_ddl(command)
+
+  @impl true
+  def ddl_logs(_), do: []
+
+  @impl true
+  def table_exists_query(_table) do
+    # database name is not available but is required for EXISTS query
+    # {"EXISTS TABLE [db].$1", [table]}
+    raise "not implemented"
+  end
+
+  @impl true
+  def to_constraints(_error), do: []
 end
