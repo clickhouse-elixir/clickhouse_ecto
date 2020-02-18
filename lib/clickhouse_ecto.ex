@@ -4,7 +4,9 @@ defmodule ClickhouseEcto do
   @moduledoc false
   @behaviour Ecto.Adapter.Storage
 
-  use Ecto.Adapters.SQL, :clickhousex
+  use Ecto.Adapters.SQL,
+    driver: :clickhousex,
+    migration_lock: "FOR UPDATE"
 
   alias ClickhouseEcto.Migration
   alias ClickhouseEcto.Storage
@@ -27,8 +29,12 @@ defmodule ClickhouseEcto do
   def supports_ddl_transaction?, do: Migration.supports_ddl_transaction?()
 
   ## Storage
+  @impl Ecto.Adapter.Storage
   def storage_up(opts), do: Storage.storage_up(opts)
+  @impl Ecto.Adapter.Storage
   def storage_down(opts), do: Storage.storage_down(opts)
+  @impl Ecto.Adapter.Storage
+  def storage_status(opts), do: Storage.storage_status(opts)
 
   ## Structure
   def structure_dump(default, config), do: Structure.structure_dump(default, config)

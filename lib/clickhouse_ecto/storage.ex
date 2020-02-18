@@ -41,9 +41,22 @@ defmodule ClickhouseEcto.Storage do
     end
   end
 
-  defp run_query(sql, opts) do
-    #    {:ok, _} = Application.ensure_all_started(:clickhousex)
+  def storage_status(opts) do
+    command = ~s[SELECT 1]
 
+    case run_query(command, opts) do
+      {:ok, _} ->
+        :ok
+
+      {:error, %{code: :database_does_not_exists}} ->
+        {:error, :already_down}
+
+      {:error, error} ->
+        {:error, Exception.message(error)}
+    end
+  end
+
+  defp run_query(sql, opts) do
     opts =
       opts
       |> Keyword.drop([:name, :log])

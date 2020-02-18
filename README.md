@@ -13,6 +13,8 @@ def deps do
     {:clickhouse_ecto, "~> 0.2.8"}
   ]
 end
+
+
 ```
 
 ## Configuration

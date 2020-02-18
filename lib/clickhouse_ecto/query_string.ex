@@ -55,8 +55,8 @@ defmodule ClickhouseEcto.QueryString do
     )
   end
 
-  def from(%{from: from} = query, sources) do
-    {from, name} = Helpers.get_source(query, sources, 0, from)
+  def from(%{from: %{source: source}} = query, sources) do
+    {from, name} = Helpers.get_source(query, sources, 0, source)
     [" FROM ", from, " AS " | name]
   end
 
@@ -206,7 +206,7 @@ defmodule ClickhouseEcto.QueryString do
   end
 
   def expr({:in, _, [_left, []]}, _sources, _query) do
-    "0=1"
+    "0"
   end
 
   def expr({:in, _, [left, right]}, sources, query) when is_list(right) do
@@ -215,7 +215,7 @@ defmodule ClickhouseEcto.QueryString do
   end
 
   def expr({:in, _, [_, {:^, _, [_, 0]}]}, _sources, _query) do
-    "0=1"
+    "0"
   end
 
   def expr({:in, _, [left, {:^, _, [_, length]}]}, sources, query) do
@@ -273,6 +273,8 @@ defmodule ClickhouseEcto.QueryString do
     end
   end
 
+  def expr({:count, _, []}, _sources, _query), do: "count(*)"
+
   def expr(list, sources, query) when is_list(list) do
     ["ARRAY[", Helpers.intersperse_map(list, ?,, &expr(&1, sources, query)), ?]]
   end
@@ -320,28 +322,37 @@ defmodule ClickhouseEcto.QueryString do
 
   def returning(_returning), do: raise("RETURNING is not supported!")
 
-  def create_names(%{prefix: prefix, sources: sources}) do
-    create_names(prefix, sources, 0, tuple_size(sources)) |> List.to_tuple()
+  def create_names(%{sources: sources}) do
+    create_names(sources, 0, tuple_size(sources)) |> List.to_tuple()
   end
 
-  def create_names(prefix, sources, pos, limit) when pos < limit do
-    current =
-      case elem(sources, pos) do
-        {table, schema} ->
-          name = [String.first(table) | Integer.to_string(pos)]
-          {Helpers.quote_table(prefix, table), name, schema}
-
-        {:fragment, _, _} ->
-          {nil, [?f | Integer.to_string(pos)], nil}
-
-        %Ecto.SubQuery{} ->
-          {nil, [?s | Integer.to_string(pos)], nil}
-      end
-
-    [current | create_names(prefix, sources, pos + 1, limit)]
-  end
-
-  def create_names(_prefix, _sources, pos, pos) do
+  def create_names(_sources, pos, pos) do
     []
+  end
+
+  def create_names(sources, pos, limit) when pos < limit do
+    [create_name(sources, pos) | create_names(sources, pos + 1, limit)]
+  end
+
+  def create_name(sources, pos) do
+    case elem(sources, pos) do
+      {:fragment, _, _} ->
+        {nil, [?f | Integer.to_string(pos)], nil}
+
+      {table, schema, prefix} ->
+        name = [create_alias(table) | Integer.to_string(pos)]
+        {Helpers.quote_table(prefix, table), name, schema}
+
+      %Ecto.SubQuery{} ->
+        {nil, [?s | Integer.to_string(pos)], nil}
+    end
+  end
+
+  defp create_alias(<<first, _rest::binary>>) when first in ?a..?z when first in ?A..?Z do
+    <<first>>
+  end
+
+  defp create_alias(_) do
+    "t"
   end
 end
