@@ -67,7 +67,6 @@ defmodule ClickhouseEcto.Storage do
 
     task =
       Task.Supervisor.async_nolink(pid, fn ->
-        HTTPoison.start()
         {:ok, conn} = DBConnection.start_link(Clickhousex.Protocol, opts)
         value = ClickhouseEcto.Connection.execute(conn, sql, [], opts)
         GenServer.stop(conn)
