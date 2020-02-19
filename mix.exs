@@ -26,7 +26,7 @@ defmodule ClickhouseEcto.Mixfile do
     [
       {:ecto_sql, "~> 3.0"},
       {:clickhousex,
-       github: "atlas-forks/clickhousex", ref: "352378d712d8d6c5e6a0c6d1a972f3b13d3d177b"},
+       github: "atlas-forks/clickhousex", ref: "b871103f1c45a39988eebc102d4d0a4b46efbda2"},
       {:ex_doc, "~> 0.19", only: :dev},
       {:db_connection, "~> 2.2.1", override: true}
     ]
