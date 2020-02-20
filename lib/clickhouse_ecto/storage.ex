@@ -10,14 +10,9 @@ defmodule ClickhouseEcto.Storage do
     command = ~s[CREATE DATABASE IF NOT EXISTS "#{database}"]
 
     case run_query(command, opts) do
-      {:ok, _} ->
-        :ok
-
-      {:error, %{code: :database_already_exists}} ->
-        {:error, :already_up}
-
-      {:error, error} ->
-        {:error, Exception.message(error)}
+      {:ok, _} -> :ok
+      {:error, %{code: :database_already_exists}} -> {:error, :already_up}
+      {:error, error} -> {:error, Exception.message(error)}
     end
   end
 
@@ -30,14 +25,9 @@ defmodule ClickhouseEcto.Storage do
     opts = Keyword.put(opts, :database, nil)
 
     case run_query(command, opts) do
-      {:ok, _} ->
-        :ok
-
-      {:error, %{code: :database_does_not_exists}} ->
-        {:error, :already_down}
-
-      {:error, error} ->
-        {:error, Exception.message(error)}
+      {:ok, _} -> :ok
+      {:error, %{code: :database_does_not_exists}} -> {:error, :already_down}
+      {:error, error} -> {:error, Exception.message(error)}
     end
   end
 
@@ -45,14 +35,9 @@ defmodule ClickhouseEcto.Storage do
     command = ~s[SELECT 1]
 
     case run_query(command, opts) do
-      {:ok, _} ->
-        :ok
-
-      {:error, %{code: :database_does_not_exists}} ->
-        {:error, :already_down}
-
-      {:error, error} ->
-        {:error, Exception.message(error)}
+      {:ok, _} -> :ok
+      {:error, %{code: :database_does_not_exists}} -> {:error, :already_down}
+      {:error, error} -> {:error, Exception.message(error)}
     end
   end
 
@@ -67,8 +52,8 @@ defmodule ClickhouseEcto.Storage do
 
     task =
       Task.Supervisor.async_nolink(pid, fn ->
-        {:ok, conn} = DBConnection.start_link(Clickhousex.Protocol, opts)
-        value = ClickhouseEcto.Connection.execute(conn, sql, [], opts)
+        {:ok, conn} = Clickhousex.start_link(opts)
+        value = Clickhousex.query(conn, sql, [], opts)
         GenServer.stop(conn)
         value
       end)
