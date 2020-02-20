@@ -1,6 +1,5 @@
 defmodule ClickhouseEctoTest do
   use ExUnit.Case
-  doctest ClickhouseEcto
 
   import Ecto.Query
 

@@ -1,16 +1,13 @@
 defmodule ClickhouseEcto do
-  require IEx
-
   @moduledoc false
   @behaviour Ecto.Adapter.Storage
 
   use Ecto.Adapters.SQL,
     driver: :clickhousex,
-    migration_lock: "FOR UPDATE"
+    migration_lock: nil
 
   alias ClickhouseEcto.Migration
   alias ClickhouseEcto.Storage
-  alias ClickhouseEcto.Structure
 
   import ClickhouseEcto.Type, only: [encode: 2, decode: 2]
 
@@ -37,6 +34,6 @@ defmodule ClickhouseEcto do
   def storage_status(opts), do: Storage.storage_status(opts)
 
   ## Structure
-  def structure_dump(default, config), do: Structure.structure_dump(default, config)
-  def structure_load(default, config), do: Structure.structure_load(default, config)
+  def structure_dump(_default, _config), do: raise("not supported")
+  def structure_load(_default, _config), do: raise("not supported")
 end
