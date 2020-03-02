@@ -93,7 +93,7 @@ defmodule ClickhouseEcto.Helpers do
   def ecto_to_db(:uuid), do: "FixedString(36)"
   def ecto_to_db(:string), do: "String"
   def ecto_to_db(:binary), do: "FixedString(4000)"
-  def ecto_to_db(:integer), do: "Int32"
+  def ecto_to_db(:integer), do: "Int64"
   def ecto_to_db(:bigint), do: "Int64"
   def ecto_to_db(:float), do: "Float32"
   def ecto_to_db(:decimal), do: "Float64"
