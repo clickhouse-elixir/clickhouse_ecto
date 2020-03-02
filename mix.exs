@@ -30,7 +30,7 @@ defmodule ClickhouseEcto.Mixfile do
     [
       {:ecto_sql, "~> 3.0"},
       {:clickhousex,
-       github: "atlas-forks/clickhousex", ref: "8e261da3cf406c6129d27c34282c3a9cebf0e779"},
+       github: "atlas-forks/clickhousex", ref: "c4b22f5b87fd334c70b1ca2622fecf4a87c0260c"},
       {:ex_doc, "~> 0.19", only: :dev},
       {:db_connection, "~> 2.2.1", override: true},
       {:dialyxir, "~> 1.0.0-rc.7", only: [:dev], runtime: false}
