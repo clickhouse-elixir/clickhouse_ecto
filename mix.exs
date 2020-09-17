@@ -28,7 +28,7 @@ defmodule ClickhouseEcto.Mixfile do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:ecto_sql, "~> 3.0"},
+      {:ecto_sql, "~> 3.4"},
       {:clickhousex,
        github: "atlas-forks/clickhousex", ref: "e010c4eaa6cb6b659e44790a3bea2ec7703ceb31"},
       {:ex_doc, "~> 0.19", only: :dev},
