@@ -1,4 +1,5 @@
 defmodule ClickhouseEcto.Storage do
+  require Logger
   @behaviour Ecto.Adapter.Storage
 
   def storage_up(opts) do
@@ -42,13 +43,14 @@ defmodule ClickhouseEcto.Storage do
   end
 
   defp run_query(sql, opts) do
+    with {:ok, _pid} <- Application.ensure_all_started(:clickhousex),
+         {:ok, pid} = Task.Supervisor.start_link() do
+
     opts =
       opts
       |> Keyword.drop([:name, :log])
-      |> Keyword.put(:pool, DBConnection.Connection)
+      |> Keyword.put(:pool, DBConnection.ConnectionPool)
       |> Keyword.put(:backoff_type, :stop)
-
-    {:ok, pid} = Task.Supervisor.start_link()
 
     task =
       Task.Supervisor.async_nolink(pid, fn ->
@@ -60,22 +62,25 @@ defmodule ClickhouseEcto.Storage do
 
     timeout = Keyword.get(opts, :timeout, 15_000)
 
-    case Task.yield(task, timeout) || Task.shutdown(task) do
-      {:ok, {:ok, result}} ->
-        {:ok, result}
+      case Task.yield(task, timeout) || Task.shutdown(task) do
+        {:ok, {:ok, result}} ->
+          {:ok, result}
 
-      {:ok, {:error, error}} ->
-        {:error, error}
+        {:ok, {:error, error}} ->
+          {:error, error}
 
-      {:exit, {%{__struct__: struct} = error, _}}
-      when struct in [DBConnection.Error] ->
-        {:error, error}
+        {:exit, {%{__struct__: struct} = error, _}}
+        when struct in [DBConnection.Error] ->
+          {:error, error}
 
-      {:exit, reason} ->
-        {:error, RuntimeError.exception(Exception.format_exit(reason))}
+        {:exit, reason} ->
+          {:error, RuntimeError.exception(Exception.format_exit(reason))}
 
-      nil ->
-        {:error, RuntimeError.exception("command timed out")}
+        nil ->
+          {:error, RuntimeError.exception("command timed out")}
+      end
+    else
+      e -> Logger.error("#{inspect(e)}")
     end
   end
 end
