@@ -29,8 +29,7 @@ defmodule ClickhouseEcto.Mixfile do
   defp deps do
     [
       {:ecto_sql, "~> 3.4"},
-      {:clickhousex,
-       github: "atlas-forks/clickhousex", ref: "e010c4eaa6cb6b659e44790a3bea2ec7703ceb31"},
+      {:clickhousex, github: "letitcrash/clickhousex"},
       {:ex_doc, "~> 0.19", only: :dev},
       {:db_connection, "~> 2.2.1", override: true},
       {:dialyxir, "~> 1.0.0-rc.7", only: [:dev], runtime: false}
