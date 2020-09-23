@@ -112,9 +112,9 @@
         {Nicene.DocumentGraphqlSchema, false},
         {Nicene.EctoSchemaDirectories, false},
         {Nicene.FileAndModuleName, []},
-        {Nicene.FileTopToBottom, []},
+        {Nicene.FileTopToBottom, false},
         {Nicene.NoSpecsPrivateFunctions, false},
-        {Nicene.PublicFunctionsFirst, []},
+        {Nicene.PublicFunctionsFirst, false},
         {Nicene.TestsInTestFolder, []},
         {Nicene.TrueFalseCaseStatements, false},
         # This has quite a lot of false positives
