@@ -27,7 +27,8 @@ defmodule ClickhouseEcto.Mixfile do
       {:ecto_sql, "~> 3.0"},
       {:clickhousex, "~> 0.4.0"},
       {:ex_doc, "~> 0.19", only: :dev},
-      {:db_connection, "~> 2.2.1", override: true}
+      {:db_connection, "~> 2.2.1", override: true},
+      {:credo, "~> 1.4.0", only: :dev}
     ]
   end
 
