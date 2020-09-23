@@ -18,12 +18,10 @@ defmodule ClickhouseEcto.Migration do
     {_, first_column_name, _, _} = List.first(columns)
 
     filtered_columns =
-      cond do
-        first_column_name == :id ->
-          List.delete_at(columns, 0)
-
-        true ->
-          columns
+      if first_column_name == :id do
+        List.delete_at(columns, 0)
+      else
+        columns
       end
 
     query = [

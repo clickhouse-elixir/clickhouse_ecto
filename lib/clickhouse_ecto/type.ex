@@ -13,13 +13,11 @@ defmodule ClickhouseEcto.Type do
   end
 
   def encode(value, :decimal) do
-    try do
-      {float_value, _} = value |> Decimal.new() |> Decimal.to_string() |> Float.parse()
-      {:ok, float_value}
-    rescue
-      _e in FunctionClauseError ->
-        {:ok, value}
-    end
+    {float_value, _} = value |> Decimal.new() |> Decimal.to_string() |> Float.parse()
+    {:ok, float_value}
+  rescue
+    _e in FunctionClauseError ->
+      {:ok, value}
   end
 
   def encode(value, _type) do
