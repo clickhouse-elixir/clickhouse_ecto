@@ -22,6 +22,8 @@ defmodule ClickhouseEcto.IntegrationTest do
         f32_val Float32,
 
         string_val String,
+        single_quote_string_val String,
+        double_quote_string_val String,
         fixed_string_val FixedString(5),
 
         date_val Date,
@@ -59,6 +61,8 @@ defmodule ClickhouseEcto.IntegrationTest do
       field(:f32_val, :float)
 
       field(:string_val, :string)
+      field(:single_quote_string_val, :string)
+      field(:double_quote_string_val, :string)
       field(:fixed_string_val, :string)
 
       field(:date_val, :date)
@@ -77,6 +81,8 @@ defmodule ClickhouseEcto.IntegrationTest do
       :f64_val,
       :f32_val,
       :string_val,
+      :single_quote_string_val,
+      :double_quote_string_val,
       :fixed_string_val,
       :date_val,
       :date_time_val
@@ -116,7 +122,9 @@ defmodule ClickhouseEcto.IntegrationTest do
                i8_val: 10,
                f64_val: 1.2,
                f32_val: 1.2,
-               string_val: "test string",
+               string_val: "test  string",
+               single_quote_string_val: "string with quote ' ",
+               double_quote_string_val: "string with double quote \" ",
                fixed_string_val: "1234",
                date_val: Date.utc_today(),
                date_time_val: NaiveDateTime.utc_now()
