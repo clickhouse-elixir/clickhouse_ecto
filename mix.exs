@@ -28,8 +28,8 @@ defmodule ClickhouseEcto.Mixfile do
       {:clickhousex, "~> 0.4.0"},
       {:ex_doc, "~> 0.19", only: :dev},
       {:db_connection, "~> 2.2.1", override: true},
-      {:credo, "~> 1.2", only: :dev},
-      {:nicene, "~> 0.4.0", only: :dev}
+      {:credo, "~> 1.5", only: :dev},
+      # {:nicene, "~> 0.4.0", only: :dev}
     ]
   end
 
