@@ -10,7 +10,7 @@ defmodule ClickhouseEcto.Mixfile do
       deps: deps(),
       description: description(),
       package: package(),
-      source_url: "https://github.com/appodeal/clickhouse_ecto"
+      source_url: "https://github.com/clickhouse-elixir/clickhouse_ecto"
     ]
   end
 
@@ -39,7 +39,7 @@ defmodule ClickhouseEcto.Mixfile do
       maintainers: maintainers(),
       licenses: ["Apache 2.0"],
       files: ["lib", "test", "config", "mix.exs", "README*", "LICENSE*"],
-      links: %{"GitHub" => "https://github.com/appodeal/clickhouse_ecto"}
+      links: %{"GitHub" => "https://github.com/clickhouse-elixir/clickhouse_ecto"}
     ]
   end
 
@@ -48,6 +48,12 @@ defmodule ClickhouseEcto.Mixfile do
   end
 
   defp maintainers do
-    ["Roman Chudov", "Konstantin Grabar", "Evgeniy Shurmin", "Alexey Lukyanov"]
+    ["Roman Chudov",
+     "Konstantin Grabar",
+     "Evgeniy Shurmin",
+     "Alexey Lukyanov",
+     "Yaroslav Rogov",
+     "Ivan Sokolov",
+     "Georgy Sychev"]
   end
 end
