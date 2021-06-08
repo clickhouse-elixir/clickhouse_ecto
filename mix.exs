@@ -24,11 +24,11 @@ defmodule ClickhouseEcto.Mixfile do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:ecto_sql, "~> 3.0"},
-      {:clickhousex, "~> 0.5.0"},
+      {:ecto_sql, "~> 3.4"},
+      {:clickhousex, git: "git@github.com:coingaming/clickhousex.git"},
       {:ex_doc, "~> 0.19", only: :dev},
       {:db_connection, "~> 2.0"},
-      {:credo, "~> 1.5", only: :dev},
+      {:credo, "~> 1.5", only: :dev}
       # {:nicene, "~> 0.4.0", only: :dev}
     ]
   end
@@ -48,12 +48,14 @@ defmodule ClickhouseEcto.Mixfile do
   end
 
   defp maintainers do
-    ["Roman Chudov",
-     "Konstantin Grabar",
-     "Evgeniy Shurmin",
-     "Alexey Lukyanov",
-     "Yaroslav Rogov",
-     "Ivan Sokolov",
-     "Georgy Sychev"]
+    [
+      "Roman Chudov",
+      "Konstantin Grabar",
+      "Evgeniy Shurmin",
+      "Alexey Lukyanov",
+      "Yaroslav Rogov",
+      "Ivan Sokolov",
+      "Georgy Sychev"
+    ]
   end
 end

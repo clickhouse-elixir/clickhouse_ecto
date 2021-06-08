@@ -136,7 +136,7 @@ defmodule ClickhouseEctoTest do
     assert all(query) == ~s{SELECT 'TRUE' FROM "schema" AS s0 LIMIT 3}
 
     query = Schema |> offset([r], 5) |> limit([r], 3) |> select([], true) |> normalize
-    assert all(query) == ~s{SELECT 'TRUE' FROM "schema" AS s0 LIMIT 5, 3}
+    assert all(query) == ~s{SELECT 'TRUE' FROM "schema" AS s0 LIMIT 3 OFFSET 5}
   end
 
   test "string escape" do
@@ -319,7 +319,7 @@ defmodule ClickhouseEctoTest do
     result =
       ~s{SELECT s0."id", ? FROM "schema" AS s0 } <>
         ~s{WHERE (?) AND (?) GROUP BY ?, ? HAVING (?) AND (?) } <>
-        ~s{ORDER BY ?, s0."x" LIMIT ?, ?}
+        ~s{ORDER BY ?, s0."x" LIMIT ? OFFSET ?}
 
     assert all(query) == String.trim(result)
   end

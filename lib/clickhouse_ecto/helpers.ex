@@ -88,12 +88,12 @@ defmodule ClickhouseEcto.Helpers do
   end
 
   def ecto_to_db({:array, t}), do: "Array(#{ecto_to_db(t)})"
-  def ecto_to_db(:id), do: "UInt32"
+  def ecto_to_db(:id), do: "UInt64"
   def ecto_to_db(:binary_id), do: "FixedString(36)"
   def ecto_to_db(:uuid), do: "FixedString(36)"
   def ecto_to_db(:string), do: "String"
   def ecto_to_db(:binary), do: "FixedString(4000)"
-  def ecto_to_db(:integer), do: "Int32"
+  def ecto_to_db(:integer), do: "Int64"
   def ecto_to_db(:bigint), do: "Int64"
   def ecto_to_db(:float), do: "Float32"
   def ecto_to_db(:decimal), do: "Float64"

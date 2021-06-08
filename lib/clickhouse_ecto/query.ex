@@ -21,11 +21,12 @@ defmodule ClickhouseEcto.Query do
     having = QueryString.having(query, sources)
     order_by = QueryString.order_by(query, order_by_distinct, sources)
     limit = QueryString.limit(query, sources)
+    combinations = QueryString.combinations(query)
     # lock     = QueryString.lock(query.lock)
 
     # res = [select, from, join, where, group_by, having, order_by, lock]
     # res = [select, from, join, where, group_by, having, order_by, offset | lock]
-    res = [select, from, join, where, group_by, having, order_by, limit]
+    res = [select, from, join, where, group_by, having, combinations, order_by, limit]
 
     IO.iodata_to_binary(res)
   end

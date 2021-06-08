@@ -16,6 +16,16 @@ defmodule ClickhouseEcto.Connection do
     DBConnection.child_spec(Clickhousex.Protocol, opts)
   end
 
+  def query(conn, statment, params, options) do
+    sql = IO.iodata_to_binary(statment)
+    Clickhousex.query(conn, sql, params, options) |> query_result()
+  end
+
+  defp query_result({:ok, _query, result}), do: {:ok, result}
+  defp query_result({:error, _} = error), do: error
+
+  def ddl_logs(_), do: []
+
   @doc """
   Prepares and executes the given query with `DBConnection`.
   """

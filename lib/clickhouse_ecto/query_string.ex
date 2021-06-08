@@ -71,8 +71,8 @@ defmodule ClickhouseEcto.QueryString do
       ?\s
       | Helpers.intersperse_map(joins, ?\s, fn
           %JoinExpr{qual: qual, ix: ix, source: source, on: %QueryExpr{expr: on_expr}} ->
-            {join, _name} = Helpers.get_source(query, sources, ix, source)
-            ["ANY", join_qual(qual), join, " USING ", on_join_expr(on_expr)]
+            {join, name} = Helpers.get_source(query, sources, ix, source)
+            [join_qual(qual), join, " AS ", name, " USING ", on_join_expr(on_expr)]
         end)
     ]
   end
@@ -96,6 +96,7 @@ defmodule ClickhouseEcto.QueryString do
 
   def join_qual(:inner), do: " INNER JOIN "
   def join_qual(:left), do: " LEFT OUTER JOIN "
+  def join_qual(:right), do: " RIGHT OUTER JOIN "
 
   def where(%Query{wheres: wheres} = query, sources) do
     boolean(" WHERE ", wheres, sources, query)
@@ -133,7 +134,11 @@ defmodule ClickhouseEcto.QueryString do
 
     case dir do
       :asc -> str
+      :asc_nulls_last -> [str | " NULLS LAST"]
+      :asc_nulls_first -> [str | " NULLS FIRST"]
       :desc -> [str | " DESC"]
+      :desc_nulls_last -> [str | " DESC NULLS LAST"]
+      :desc_nulls_first -> [str | " DESC NULLS FIRST"]
     end
   end
 
@@ -148,7 +153,14 @@ defmodule ClickhouseEcto.QueryString do
           query,
         sources
       ) do
-    [" LIMIT ", expr(expr_offset, sources, query), ", ", expr(expr_limit, sources, query)]
+    [" LIMIT ", expr(expr_limit, sources, query), " OFFSET ", expr(expr_offset, sources, query)]
+  end
+
+  def combinations(%{combinations: combinations}) do
+    Enum.map(combinations, fn
+      {:union, query} -> [" UNION (", ClickhouseEcto.Query.all(query), ")"]
+      {:union_all, query} -> [" UNION ALL (", ClickhouseEcto.Query.all(query), ")"]
+    end)
   end
 
   def boolean(_name, [], _sources, _query), do: []
@@ -267,6 +279,9 @@ defmodule ClickhouseEcto.QueryString do
       {:binary_op, op} ->
         [left, right] = args
         [op_to_binary(left, sources, query), op | op_to_binary(right, sources, query)]
+
+      {:fun, fun} when fun in ~w(+ - * /) ->
+        [?(, Helpers.intersperse_map(args, " #{fun} ", &expr(&1, sources, query)), ?)]
 
       {:fun, fun} ->
         [fun, ?(, modifier, Helpers.intersperse_map(args, ", ", &expr(&1, sources, query)), ?)]
