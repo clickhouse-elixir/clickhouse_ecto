@@ -4,7 +4,7 @@ defmodule ClickhouseEcto.Mixfile do
   def project do
     [
       app: :clickhouse_ecto,
-      version: "0.2.8",
+      version: "0.2.9",
       elixir: "~> 1.5",
       start_permanent: Mix.env() == :prod,
       deps: deps(),
